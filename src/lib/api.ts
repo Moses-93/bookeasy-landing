@@ -7,6 +7,53 @@ import type {
   PaginatedResponse,
 } from "./types";
 
+export class ApiError extends Error {
+  readonly statusCode: number;
+  readonly response?: unknown;
+
+  constructor(message: string, statusCode: number, response?: unknown) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = statusCode;
+    this.response = response;
+  }
+}
+
+export class ValidationError extends ApiError {
+  constructor(message: string, response?: unknown) {
+    super(message, 422, response);
+    this.name = "ValidationError";
+  }
+}
+
+export class NotFoundError extends ApiError {
+  constructor(message: string, response?: unknown) {
+    super(message, 404, response);
+    this.name = "NotFoundError";
+  }
+}
+
+export class ConflictError extends ApiError {
+  constructor(message: string, response?: unknown) {
+    super(message, 409, response);
+    this.name = "ConflictError";
+  }
+}
+
+export class ForbiddenError extends ApiError {
+  constructor(message: string, response?: unknown) {
+    super(message, 403, response);
+    this.name = "ForbiddenError";
+  }
+}
+
+export class ServerError extends ApiError {
+  constructor(message: string, response?: unknown) {
+    super(message, 500, response);
+    this.name = "ServerError";
+  }
+}
+
 /**
  * Resolve the base URL for API calls.
  * Server-side uses API_URL (internal network); client-side uses relative path (proxied).
@@ -37,14 +84,62 @@ async function apiFetch<T>(
     headers["x-internal-token"] = process.env.INTERNAL_API_TOKEN;
   }
 
-  const response = await fetch(url, {
-    ...init,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...init,
+      headers,
+    });
+    } catch (networkError) {
+    if (networkError instanceof ApiError) {
+      throw networkError;
+    }
+    throw new ApiError("Помилка мережі", 0, networkError);
+  }
+
 
   if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`API ${response.status}: ${text || response.statusText}`);
+    interface ValidationDetail {
+      loc: string[];
+      msg: string;
+    }
+
+    interface ApiErrorData {
+      detail?: string | ValidationDetail[];
+      message?: string;
+    }
+
+    const responseData = (await response.json().catch(() => null)) as ApiErrorData | null;
+    const detail = responseData?.detail;
+    const message =
+      responseData?.message ||
+      (typeof detail === "string" ? detail : undefined) ||
+      (Array.isArray(detail)
+        ? detail.map((d: ValidationDetail) => `${d.loc.join(".")}: ${d.msg}`).join("; ")
+        : undefined) ||
+      response.statusText;
+
+    const status = response.status;
+
+    if (status === 409) {
+      throw new ConflictError(
+        message || "Цей час уже зайнятий. Будь ласка, оберіть інший.",
+        responseData,
+      );
+    }
+
+    if (status === 400 || status === 422) {
+      throw new ValidationError(
+        message || "Будь ласка, перевірте коректність введених даних.",
+        responseData,
+      );
+    }
+
+    throw new ApiError(
+      "Не вдалося створити бронювання. Будь ласка, спробуйте ще раз або зверніться до підтримки.",
+      status,
+      responseData,
+    );
   }
 
   return response.json();

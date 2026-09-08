@@ -20,24 +20,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       profile.contact.about ||
       `Онлайн-запис на послуги до майстра ${profile.name}. Оберіть зручний час та забронюйте візит онлайн.`;
 
+    const imageUrl = profile.cover_url || profile.avatar_url || "/og-image.png";
+
     return {
-      title: `Онлайн-запис — ${profile.name} | BOOKEASY`,
+      title: `Онлайн-запис — ${profile.name}`,
       description,
+      alternates: {
+        canonical: `/m/${masterToken}`,
+      },
       openGraph: {
-        title: `Онлайн-запис — ${profile.name} | BOOKEASY`,
+        title: `Онлайн-запис — ${profile.name}`,
         description,
         type: "profile",
-        images: profile.avatar_url ? [{ url: profile.avatar_url }] : [],
+        url: `https://bookeasy.com.ua/m/${masterToken}`,
+        images: [{ url: imageUrl }],
       },
       twitter: {
         card: "summary_large_image",
-        title: `Онлайн-запис — ${profile.name} | BOOKEASY`,
+        title: `Онлайн-запис — ${profile.name}`,
         description,
+        images: [imageUrl],
       },
     };
   } catch {
     return {
       title: "Сторінку майстра не знайдено",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 }

@@ -9,6 +9,14 @@ import { SharedMarkdownRenderer } from "@/components/ui/MarkdownContent";
 export const metadata: Metadata = {
   title: "Політика конфіденційності",
   description: "Політика конфіденційності та захисту персональних даних сервісу BOOKEASY.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
+  openGraph: {
+    title: "Політика конфіденційності — BOOKEASY",
+    description: "Політика конфіденційності та захисту персональних даних сервісу BOOKEASY.",
+    url: "https://bookeasy.com.ua/privacy-policy",
+  },
 };
 
 export default async function PrivacyPolicyPage() {

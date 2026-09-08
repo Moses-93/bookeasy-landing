@@ -9,6 +9,14 @@ import { SharedMarkdownRenderer } from "@/components/ui/MarkdownContent";
 export const metadata: Metadata = {
   title: "Умови користування",
   description: "Договір публічної оферти та умови користування сервісом BOOKEASY.",
+  alternates: {
+    canonical: "/terms",
+  },
+  openGraph: {
+    title: "Умови користування — BOOKEASY",
+    description: "Договір публічної оферти та умови користування сервісом BOOKEASY.",
+    url: "https://bookeasy.com.ua/terms",
+  },
 };
 
 export default async function TermsPage() {

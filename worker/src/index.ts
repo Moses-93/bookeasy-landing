@@ -1,19 +1,23 @@
 export interface Env {
   VERCEL_ORIGIN: string;
-  BACKEND_ORIGIN: string;
 }
 
 const VERCEL_EXACT: ReadonlySet<string> = new Set([
   "/",
   "/terms",
   "/privacy-policy",
+  "/robots.txt",
+  "/favicon.svg",
+  "/og-image.png",
+  "/bookeasy-logo-180.png",
+  "/bookeasy-logo-192.png",
+  "/bookeasy-logo-512.png",
 ]);
 
 function isVercelRoute(pathname: string): boolean {
   if (VERCEL_EXACT.has(pathname)) return true;
   if (pathname.startsWith("/m/")) return true;
   if (pathname.startsWith("/_next/")) return true;
-  if (pathname === "/favicon.ico") return true;
   return false;
 }
 

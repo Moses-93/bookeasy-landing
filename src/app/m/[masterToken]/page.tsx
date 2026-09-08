@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       profile.contact.about ||
       `Онлайн-запис на послуги до майстра ${profile.name}. Оберіть зручний час та забронюйте візит онлайн.`;
 
-    const imageUrl = profile.cover_url || profile.avatar_url || "/og-image.png";
+    const imageUrl = profile.avatar_url || profile.cover_url || "/og-image.png";
 
     return {
       title: `Онлайн-запис — ${profile.name}`,

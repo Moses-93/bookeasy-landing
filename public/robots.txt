@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /schedule
+Disallow: /business
+Disallow: /bookings
+Disallow: /clients
+Disallow: /profile
+Disallow: /client
+Disallow: /login
+Disallow: /register
+Disallow: /client-register
+Disallow: /setup-client-account
+
+Sitemap: https://api.bookeasy.com.ua/api/v1/sitemap.xml

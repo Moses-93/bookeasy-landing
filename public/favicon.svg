@@ -1,0 +1,26 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_175_12)">
+<rect width="512" height="512" fill="#0F172B" rx="112"/>
+<path d="M257.413 243.829C273.772 243.829 287.033 204.692 287.033 156.415C287.033 108.137 273.772 69 257.413 69C241.055 69 227.793 108.137 227.793 156.415C227.793 204.692 241.055 243.829 257.413 243.829Z" fill="url(#paint0_radial_175_12)" />
+<path d="M268.367 250.119C276.387 262.885 319.889 253.602 365.531 229.384C411.173 205.166 441.672 175.185 433.652 162.419C425.632 149.653 382.13 158.936 336.488 183.154C290.846 207.371 260.347 237.352 268.367 250.119Z" fill="url(#paint0_radial_175_12)" />
+<path d="M268.365 261.558C260.345 274.324 290.843 304.305 336.486 328.523C382.128 352.74 425.63 362.024 433.65 349.257C441.67 336.491 411.171 306.51 365.529 282.292C319.887 258.075 276.385 248.792 268.365 261.558Z" fill="url(#paint0_radial_175_12)" />
+<path d="M257.413 268.805C241.055 268.805 227.794 307.942 227.794 356.22C227.794 404.497 241.055 443.634 257.413 443.634C273.772 443.634 287.033 404.497 287.033 356.22C287.033 307.942 273.772 268.805 257.413 268.805Z" fill="url(#paint0_radial_175_12)" />
+<path d="M246.807 261.558C238.787 248.791 195.285 258.075 149.643 282.292C104.001 306.51 73.5018 336.491 81.5219 349.257C89.5419 362.024 133.044 352.74 178.686 328.523C224.328 304.305 254.827 274.324 246.807 261.558Z" fill="url(#paint0_radial_175_12)" />
+<path d="M246.807 250.119C254.827 237.353 224.328 207.372 178.686 183.154C133.043 158.936 89.5416 149.653 81.5216 162.419C73.5015 175.186 104 205.167 149.643 229.384C195.285 253.602 238.787 262.885 246.807 250.119Z" fill="url(#paint0_radial_175_12)" />
+<circle cx="257.5" cy="255.5" r="32" fill="#0F172B" />
+</g>
+<defs>
+<filter id="filter0_f_175_12" x="229" y="227" width="57" height="57" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="0.5" result="effect1_foregroundBlur_175_12"/>
+</filter>
+<radialGradient id="paint0_radial_175_12" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 256) rotate(90) scale(256)">
+<stop stop-color="#F6DECD"/>
+<stop offset="1" stop-color="#E7ECF0"/>
+</radialGradient>
+<clipPath id="clip0_175_12">
+<rect width="512" height="512" fill="white"/>
+</clipPath>
+</defs>
+</svg>

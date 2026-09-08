@@ -1,5 +1,7 @@
 export interface Env {
   VERCEL_ORIGIN: string;
+  BACKEND_ORIGIN: string;
+  INTERNAL_API_TOKEN: string;
 }
 
 const VERCEL_EXACT: ReadonlySet<string> = new Set([
@@ -24,6 +26,21 @@ function isVercelRoute(pathname: string): boolean {
 const worker = {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+
+    // If request contains internal SSR token, proxy it to backend API
+    const internalToken = request.headers.get("x-internal-token");
+    if (internalToken && internalToken === env.INTERNAL_API_TOKEN) {
+      const backendTarget = new URL(url.pathname + url.search, env.BACKEND_ORIGIN);
+      const headers = new Headers(request.headers);
+      headers.set("Host", new URL(env.BACKEND_ORIGIN).host);
+      headers.delete("x-internal-token");
+
+      return fetch(backendTarget.toString(), {
+        method: request.method,
+        headers,
+        body: request.body,
+      });
+    }
 
     if (!isVercelRoute(url.pathname)) {
       return fetch(request);

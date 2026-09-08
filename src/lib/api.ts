@@ -28,12 +28,18 @@ async function apiFetch<T>(
   const baseUrl = getBaseUrl();
   const url = `${baseUrl}${path}`;
 
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init?.headers as Record<string, string>),
+  };
+
+  if (typeof window === "undefined" && process.env.INTERNAL_API_TOKEN) {
+    headers["x-internal-token"] = process.env.INTERNAL_API_TOKEN;
+  }
+
   const response = await fetch(url, {
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {

@@ -3,7 +3,7 @@ import type {
   IService,
   IBookableTimeSlot,
   IBooking,
-  CreateAnonymousBookingPayload,
+  ICreateBooking,
   PaginatedResponse,
 } from "./types";
 
@@ -196,7 +196,7 @@ export async function fetchBookableTimeSlots(
  * Create an anonymous booking.
  */
 export async function createAnonymousBooking(
-  payload: CreateAnonymousBookingPayload,
+  payload: ICreateBooking,
 ): Promise<IBooking> {
   return apiFetch<IBooking>("/api/v1/bookings/anonymous", {
     method: "POST",

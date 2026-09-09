@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
+import type { IBookingStatus } from "@/lib/types";
 
 /**
  * Format price in kopecks to human-readable UAH string.
@@ -75,13 +76,12 @@ export const parseDecimalString = (value: string): number | null => {
 /**
  * Booking status label mapping.
  */
-const STATUS_LABELS: Record<string, string> = {
+const STATUS_LABELS: Record<IBookingStatus, string> = {
   pending: "Очікує",
-  confirmed: "Підтверджено",
+  active: "Підтверджено",
   cancelled: "Скасовано",
   completed: "Завершено",
-  no_show: "Не з'явився",
 };
 
 export const getBookingStatusLabel = (status: string): string =>
-  STATUS_LABELS[status] ?? status;
+  STATUS_LABELS[status as IBookingStatus] ?? status;

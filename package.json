@@ -21,7 +21,8 @@
     "react-dom": "19.2.8",
     "react-markdown": "^10.1.0",
     "react-number-format": "^5.4.5",
-    "use-detect-keyboard-open": "^0.4.0"
+    "use-detect-keyboard-open": "^0.4.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

@@ -7,13 +7,13 @@ import type { IService } from "@/lib/types";
 
 interface ServiceSelectorProps {
   services: IService[];
-  selectedServiceId: number | null;
-  onSelectService: (id: number) => void;
+  selectedService: IService | null;
+  onSelectService: (service: IService) => void;
 }
 
 const ServiceSelector: React.FC<ServiceSelectorProps> = ({
   services,
-  selectedServiceId,
+  selectedService,
   onSelectService,
 }) => {
   const visibleServices = services;
@@ -22,12 +22,12 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
     <div className="space-y-3 sm:space-y-5">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {visibleServices.map((service) => {
-          const isSelected = selectedServiceId === service.id;
+          const isSelected = selectedService?.id === service.id;
           return (
             <button
               key={service.id}
               type="button"
-              onClick={() => onSelectService(service.id)}
+              onClick={() => onSelectService(service)}
               className={`group relative flex flex-col gap-2.5 rounded-[22px] p-3.5 text-left transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/30 sm:rounded-[24px] sm:p-5 md:h-full ${
                 isSelected
                   ? "border border-zinc-950 bg-white shadow-sm scale-[1.01]"

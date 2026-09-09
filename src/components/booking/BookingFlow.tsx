@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 
 import type {
-  BookingData,
+  ICreateBooking,
   IBooking,
   IPublicMasterProfile,
   IService,
@@ -28,7 +28,7 @@ import {
 
 interface BookingFlowProps {
   masterId: number;
-  onComplete?: ((data: BookingData) => Promise<IBooking>) | ((data: BookingData) => IBooking);
+  onComplete?: ((data: ICreateBooking) => Promise<IBooking>) | ((data: ICreateBooking) => IBooking);
   masterInfo?: IPublicMasterProfile;
   showContactForm?: boolean;
   services: IService[];
@@ -47,43 +47,23 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [completedBooking, setCompletedBooking] = useState<IBooking | null>(null);
 
-  const handleBookingComplete =
-    onComplete ||
-    (async (data: BookingData) => {
-      return await createAnonymousBooking({
-        master_id: data.masterId,
-        service_id: data.serviceId,
-        time_slot_ids: data.timeSlotIds,
-        name: data.clientName ?? "",
-        phone_number: data.clientPhone ?? "",
-        instagram_username: data.clientInstagram?.trim() || undefined,
-        telegram_username: data.clientTelegram?.trim() || undefined,
-      });
-    });
+  const handleBookingComplete = onComplete || createAnonymousBooking;
 
   const {
     step,
-    selectedServiceId,
+    selectedService,
     selectedDate,
     selectedSlot,
-    clientName,
-    clientPhone,
-    clientInstagram,
-    clientTelegram,
     isSubmitting,
-    selectedService,
     canProceed,
     setSelectedDate,
     setSelectedSlot,
-    setClientName,
-    setClientPhone,
-    setClientInstagram,
-    setClientTelegram,
     selectService,
     handleNext,
     handleBack,
     handleBook,
-  } = useBookingFlow(services, { masterId, onComplete: handleBookingComplete, maxSteps: 4 });
+    resetFlow,
+  } = useBookingFlow({ onComplete: handleBookingComplete, maxSteps: 3 });
 
   const duration = selectedService?.duration;
   const formattedDate = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
@@ -120,23 +100,11 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
     };
   }, [currentKey, masterId, duration, formattedDate]);
 
-  const [prevAvailableDatesKey, setPrevAvailableDatesKey] = useState("");
-  const currentAvailableDatesKey = availableDates.join(",");
 
-  if (currentAvailableDatesKey !== prevAvailableDatesKey) {
-    setPrevAvailableDatesKey(currentAvailableDatesKey);
-    if (availableDates.length > 0) {
-      const firstDate = new Date(availableDates[0]);
-      if (selectedDate.getTime() !== firstDate.getTime()) {
-        setSelectedDate(firstDate);
-      }
-    }
-  }
-
-  const handleConfirm = async () => {
+  const handleConfirm = async (booking: ICreateBooking) => {
     setErrorMsg(null);
     try {
-      const result = await handleBook();
+      const result = await handleBook(booking);
       setCompletedBooking(result);
     } catch (error) {
       const message =
@@ -153,8 +121,10 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
             <BookingSuccess
               booking={completedBooking}
               onClose={() => {
+                resetFlow();
                 setCompletedBooking(null);
                 setIsStorefront(true);
+                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
             />
           </div>
@@ -173,73 +143,8 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           : null;
 
   if (isStorefront && masterInfo) {
-    let priceRange: string | undefined = undefined;
-    if (services.length > 0) {
-      const prices = services.map((s) => s.price);
-      const min = Math.min(...prices) / 100;
-      const max = Math.max(...prices) / 100;
-      priceRange = min === max ? `${min} UAH` : `${min} - ${max} UAH`;
-    }
-    const currentUrl = typeof window !== "undefined" ? window.location.href : "";
-    const sameAs = [
-      masterInfo.contact?.instagram_link,
-      masterInfo.contact?.telegram_link,
-      masterInfo.contact?.google_maps_link,
-    ].filter(Boolean);
-
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@type": "HealthAndBeautyBusiness",
-      "@id": currentUrl,
-      name: masterInfo.name,
-      ...(currentUrl ? { url: currentUrl } : {}),
-      ...(sameAs.length > 0 ? { sameAs } : {}),
-      ...(priceRange ? { priceRange } : {}),
-      ...(masterInfo.avatar_url || masterInfo.cover_url
-        ? { image: masterInfo.avatar_url || masterInfo.cover_url }
-        : {}),
-      ...(masterInfo.contact?.address
-        ? {
-            address: {
-              "@type": "PostalAddress",
-              streetAddress: masterInfo.contact.address,
-              addressCountry: "UA",
-            },
-          }
-        : {}),
-      ...(masterInfo.contact?.about ? { description: masterInfo.contact.about } : {}),
-      ...(masterInfo.contact?.phone_number ? { telephone: masterInfo.contact.phone_number } : {}),
-      ...(services.length > 0
-        ? {
-            hasOfferCatalog: {
-              "@type": "OfferCatalog",
-              name: "Послуги майстра",
-              itemListElement: services.map((service, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                item: {
-                  "@type": "Offer",
-                  itemOffered: {
-                    "@type": "Service",
-                    name: service.title,
-                    ...(service.description ? { description: service.description } : {}),
-                  },
-                  price: (service.price / 100).toFixed(2),
-                  priceCurrency: "UAH",
-                  availability: "https://schema.org/InStock",
-                },
-              })),
-            },
-          }
-        : {}),
-    };
-
     return (
       <div className="min-h-screen bg-[#FDFBFB] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFF0F0]/50 via-[#FDFBFB] to-[#FDFBFB] pb-24 sm:pb-28">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
         <MasterHero info={masterInfo} />
 
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
@@ -254,7 +159,10 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
             }
           `}</style>
           <button
-            onClick={() => setIsStorefront(false)}
+            onClick={() => {
+              resetFlow();
+              setIsStorefront(false);
+            }}
             className="pointer-events-auto h-14 w-full sm:w-auto sm:px-16 rounded-full bg-zinc-950 text-white text-[16px] font-medium hover:bg-zinc-800 transition-all duration-300 active:scale-95 shadow-xl"
             style={{ animation: "beauty-pulse 3s ease-in-out infinite" }}
           >
@@ -267,47 +175,45 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
 
   return (
     <div className="min-h-screen bg-[#FDFBFB] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFF0F0]/50 via-[#FDFBFB] to-[#FDFBFB] pb-24 sm:pb-28">
-      {step < 4 && (
-        <header className="sticky top-0 z-30 border-b border-white/60 bg-white/60 backdrop-blur-md">
-          <div className="mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-2 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
-            <div className="flex justify-start">
-              {step > 1 ? (
-                <button
-                  onClick={handleBack}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 sm:h-10 sm:w-10"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-              ) : step === 1 && masterInfo ? (
-                <button
-                  onClick={() => setIsStorefront(true)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 sm:h-10 sm:w-10"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-              ) : null}
-            </div>
-
-            <Brand />
-
-            <div className="flex items-center justify-end gap-2">
-              {[1, 2, 3].map((itemStep) => {
-                const active = itemStep === step;
-                const done = itemStep < step;
-
-                return (
-                  <div
-                    key={itemStep}
-                    className={`h-1.5 rounded-full transition-all ${active ? "w-6 bg-zinc-950" : done ? "w-2 bg-zinc-600" : "w-2 bg-zinc-200"}`}
-                  />
-                );
-              })}
-            </div>
+      <header className="sticky top-0 z-30 border-b border-white/60 bg-white/60 backdrop-blur-md">
+        <div className="mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-2 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
+          <div className="flex justify-start">
+            {step > 1 ? (
+              <button
+                onClick={handleBack}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 sm:h-10 sm:w-10"
+              >
+                <ChevronLeft size={18} />
+              </button>
+            ) : step === 1 && masterInfo ? (
+              <button
+                onClick={() => setIsStorefront(true)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 sm:h-10 sm:w-10"
+              >
+                <ChevronLeft size={18} />
+              </button>
+            ) : null}
           </div>
-        </header>
-      )}
 
-      {step < 4 && masterInfo && masterInfo.online_booking === false && (
+          <Brand />
+
+          <div className="flex items-center justify-end gap-2">
+            {[1, 2, 3].map((itemStep) => {
+              const active = itemStep === step;
+              const done = itemStep < step;
+
+              return (
+                <div
+                  key={itemStep}
+                  className={`h-1.5 rounded-full transition-all ${active ? "w-6 bg-zinc-950" : done ? "w-2 bg-zinc-600" : "w-2 bg-zinc-200"}`}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {masterInfo && masterInfo.online_booking === false && (
         <div className="bg-amber-50 border-y border-amber-100 px-4 py-3 sm:px-6 flex items-center gap-2.5 text-[13px] font-medium text-amber-900">
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
           Онлайн-запис наразі вимкнено майстром. Ви можете переглядати послуги та віконця.
@@ -333,7 +239,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           {step === 1 && (
             <ServiceSelector
               services={services}
-              selectedServiceId={selectedServiceId}
+              selectedService={selectedService}
               onSelectService={selectService}
             />
           )}
@@ -368,20 +274,13 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
               </div>
             ) : (
               <BookingConfirmation
+                masterId={masterId}
                 service={selectedService}
                 date={selectedDate}
                 slot={selectedSlot!}
                 onConfirm={handleConfirm}
                 isSubmitting={isSubmitting}
                 showContactForm={showContactForm}
-                clientName={clientName}
-                clientPhone={clientPhone}
-                clientInstagram={clientInstagram}
-                clientTelegram={clientTelegram}
-                onNameChange={setClientName}
-                onPhoneChange={setClientPhone}
-                onInstagramChange={setClientInstagram}
-                onTelegramChange={setClientTelegram}
               />
             ))}
         </div>
@@ -394,14 +293,13 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
               <button
                 onClick={handleNext}
                 disabled={!canProceed}
-                className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${
-                  canProceed
+                className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${canProceed
                     ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
                     : "cursor-not-allowed bg-white/50 text-stone-400"
-                }`}
+                  }`}
               >
-                {selectedServiceId ? "Далі" : "Оберіть послугу"}
-                {selectedServiceId && <ChevronRight size={18} />}
+                {selectedService ? "Далі" : "Оберіть послугу"}
+                {selectedService && <ChevronRight size={18} />}
               </button>
             )}
 
@@ -409,11 +307,10 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
               <button
                 onClick={handleNext}
                 disabled={!canProceed}
-                className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${
-                  canProceed
+                className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${canProceed
                     ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
                     : "cursor-not-allowed bg-white/50 text-stone-400"
-                }`}
+                  }`}
               >
                 {selectedSlot ? "Далі" : "Оберіть час"}
                 {selectedSlot && <ChevronRight size={18} />}

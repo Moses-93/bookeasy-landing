@@ -1,4 +1,10 @@
-/* ── Master Profile (public) ── */
+import z from "zod";
+
+
+const PHONE_E164_REGEX = /^\+380\d{9}$/;
+const TELEGRAM_HANDLE_REGEX = /^[a-zA-Z0-9_]{5,32}$/;
+const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9._]{1,30}$/;
+
 
 export interface IContact {
   address: string | null;
@@ -30,8 +36,6 @@ export interface IPublicMasterProfile {
   updated_at: string;
 }
 
-/* ── Service ── */
-
 export interface IService {
   id: number;
   master_id: number;
@@ -42,58 +46,99 @@ export interface IService {
   is_active: boolean;
 }
 
-/* ── Time Slots ── */
-
 export interface IBookableTimeSlot {
   start_time: string;
   group_ids: number[];
 }
 
-/* ── Booking ── */
-
-export interface IBookingService {
-  id: number;
-  title: string;
-  price: number;
-  duration: string;
-}
-
-export interface IBookingTimeSlot {
+export interface ITimeSlot {
   start: string;
   end: string;
 }
 
+export const bookingStatusSchema = z.enum([
+  "active",
+  "pending",
+  "cancelled",
+  "completed",
+]);
+
+export type IBookingStatus = z.infer<typeof bookingStatusSchema>;
+
 export interface IBooking {
   id: number;
-  status: string;
-  service: IBookingService;
-  time_slot: IBookingTimeSlot;
+  status: IBookingStatus | string;
+  service: IService;
+  time_slot: ITimeSlot;
   created_at: string;
-}
-
-export interface BookingData {
-  masterId: number;
-  serviceId: number;
-  timeSlotIds: number[];
-  date: Date;
-  slot: IBookableTimeSlot;
-  clientName?: string;
-  clientPhone?: string;
-  clientInstagram?: string;
-  clientTelegram?: string;
-}
-
-export interface CreateAnonymousBookingPayload {
-  master_id: number;
-  service_id: number;
-  time_slot_ids: number[];
-  name: string;
-  phone_number: string;
-  instagram_username?: string;
-  telegram_username?: string;
 }
 
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
 }
+
+export const createBookingSchema = z.object({
+  master_id: z.number().int().positive(),
+  service_id: z.number().int().positive(),
+  time_slot_ids: z
+    .array(z.number().int().positive())
+    .min(1, "Оберіть часовий слот"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Ім'я повинно містити щонайменше 2 символи")
+    .max(100, "Ім'я не може перевищувати 100 символів"),
+  phone_number: z
+    .string()
+    .transform((v) => {
+      const clean = v.replace(/[\s\-()]/g, "");
+      if (clean.startsWith("+380")) return clean;
+      if (clean.startsWith("380")) return `+${clean}`;
+      if (clean.startsWith("0")) return `+38${clean}`;
+      return clean;
+    })
+    .pipe(
+      z
+        .string()
+        .regex(PHONE_E164_REGEX, "Номер телефону має бути у форматі +380XXXXXXXXX"),
+    ),
+  instagram_username: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((v) => {
+      if (!v) return null;
+      const s = v.trim().replace(/^@+/, "");
+      return s.length > 0 ? s : null;
+    })
+    .pipe(
+      z
+        .string()
+        .regex(
+          INSTAGRAM_HANDLE_REGEX,
+          "Instagram нікнейм повинен містити від 1 до 30 символів",
+        )
+        .nullable(),
+    ),
+  telegram_username: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((v) => {
+      if (!v) return null;
+      const s = v.trim().replace(/^@+/, "");
+      return s.length > 0 ? s : null;
+    })
+    .pipe(
+      z
+        .string()
+        .regex(
+          TELEGRAM_HANDLE_REGEX,
+          "Telegram нікнейм повинен містити від 5 до 32 символів",
+        )
+        .nullable(),
+    ),
+});
+
+export type ICreateBooking = z.infer<typeof createBookingSchema>;

@@ -24,4 +24,3 @@ Public-facing surface of BOOKEASY, decoupled from the core SPA dashboard:
 | `/terms` | Static (SSG) | `src/content/legal/terms.md` |
 | `/privacy-policy` | Static (SSG) | `src/content/legal/privacy.md` |
 | `/m/:masterToken` | Dynamic SSR | `GET /api/v1/masters/:token/public-profile` |
-| `/m/:masterToken/bookings/:id` | Client-side | Ephemeral session / API |

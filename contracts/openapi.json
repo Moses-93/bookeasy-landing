@@ -1,0 +1,1153 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "BOOKEASY",
+        "summary": "REST API for appointment booking and master/client management",
+        "description": "BookEasy REST API for beauty-service booking. Includes auth (email/password and Google), public booking flows, client and master booking management, master profile/services/time-slots/statistics, billing/subscription, shared booking utilities, Telegram integration, and payment webhooks.",
+        "termsOfService": "https://bookeasy.com.ua/terms",
+        "contact": {
+            "name": "BookEasy Support",
+            "url": "https://bookeasy.com.ua/",
+            "email": "bookeasy.ua@gmail.com"
+        },
+        "version": "2.1.0"
+    },
+    "servers": [
+        {
+            "url": "https://api.bookeasy.com.ua",
+            "description": "prod environment"
+        }
+    ],
+    "paths": {
+        "/api/v1/masters/{master_token}/public-profile": {
+            "get": {
+                "tags": [
+                    "public:masters"
+                ],
+                "summary": "Get Public Master Profile",
+                "operationId": "get_public_master_profile_api_v1_masters__master_token__public_profile_get",
+                "parameters": [
+                    {
+                        "name": "master_token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Master invite token",
+                            "examples": [
+                                "A3E2-25CB-D794"
+                            ],
+                            "title": "Master Token"
+                        },
+                        "description": "Master invite token"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PublicMasterProfileSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Master not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Unexpected system failure"
+                    }
+                }
+            }
+        },
+        "/api/v1/services": {
+            "get": {
+                "tags": [
+                    "public:services"
+                ],
+                "summary": "List Services",
+                "operationId": "list_services_api_v1_services_get",
+                "parameters": [
+                    {
+                        "name": "master_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Unique identifier of the service provider",
+                            "examples": [
+                                10
+                            ],
+                            "title": "Master Id"
+                        },
+                        "description": "Unique identifier of the service provider"
+                    },
+                    {
+                        "name": "is_active",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "description": "Filter by status. If None, returns active only.",
+                            "default": true,
+                            "title": "Is Active"
+                        },
+                        "description": "Filter by status. If None, returns active only."
+                    },
+                    {
+                        "name": "min_price",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Service price in minor units (cents/kopecks)",
+                                    "examples": [
+                                        5000
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Lower price bound",
+                            "title": "Min Price"
+                        },
+                        "description": "Lower price bound"
+                    },
+                    {
+                        "name": "max_price",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0,
+                                    "description": "Service price in minor units (cents/kopecks)",
+                                    "examples": [
+                                        5000
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Upper price bound",
+                            "title": "Max Price"
+                        },
+                        "description": "Upper price bound"
+                    },
+                    {
+                        "name": "min_duration",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "duration",
+                                    "description": "Duration in ISO 8601 format (e.g., PT30M for 30 mins)",
+                                    "examples": [
+                                        "PT30M"
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Minimum duration limit",
+                            "title": "Min Duration"
+                        },
+                        "description": "Minimum duration limit"
+                    },
+                    {
+                        "name": "max_duration",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "duration",
+                                    "description": "Duration in ISO 8601 format (e.g., PT30M for 30 mins)",
+                                    "examples": [
+                                        "PT30M"
+                                    ]
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Maximum duration limit",
+                            "title": "Max Duration"
+                        },
+                        "description": "Maximum duration limit"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "description": "Maximum number of items to return",
+                            "examples": [
+                                20
+                            ],
+                            "default": 10,
+                            "title": "Limit"
+                        },
+                        "description": "Maximum number of items to return"
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "description": "Number of items to skip",
+                            "examples": [
+                                0
+                            ],
+                            "default": 0,
+                            "title": "Offset"
+                        },
+                        "description": "Number of items to skip"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedResponse_ResponseServiceSchema_"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request: Invalid filter parameters"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Unexpected system failure"
+                    }
+                }
+            }
+        },
+        "/api/v1/time-slots/available-dates": {
+            "get": {
+                "tags": [
+                    "public:time-slots"
+                ],
+                "summary": "Get available dates for a master",
+                "description": "Retrieve all unique dates that have at least one available time slot.",
+                "operationId": "list_available_dates_api_v1_time_slots_available_dates_get",
+                "parameters": [
+                    {
+                        "name": "master_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Master identifier",
+                            "title": "Master Id"
+                        },
+                        "description": "Master identifier"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "title": "Response List Available Dates Api V1 Time Slots Available Dates Get"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: No available dates found for the given master"
+                    },
+                    "422": {
+                        "description": "Unprocessable Content: Invalid query parameters"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Unexpected system failure"
+                    }
+                }
+            }
+        },
+        "/api/v1/time-slots/bookable": {
+            "get": {
+                "tags": [
+                    "public:time-slots"
+                ],
+                "summary": "List Bookable Slots",
+                "operationId": "list_bookable_slots_api_v1_time_slots_bookable_get",
+                "parameters": [
+                    {
+                        "name": "master_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "description": "Master identifier",
+                            "title": "Master Id"
+                        },
+                        "description": "Master identifier"
+                    },
+                    {
+                        "name": "duration",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "duration",
+                            "description": "Service duration (e.g., PT30M for 30 minutes)",
+                            "examples": [
+                                "PT30M"
+                            ],
+                            "title": "Duration"
+                        },
+                        "description": "Service duration (e.g., PT30M for 30 minutes)"
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter slots starting from this date (inclusive)",
+                            "examples": [
+                                "2026-01-01"
+                            ],
+                            "title": "Start Date"
+                        },
+                        "description": "Filter slots starting from this date (inclusive)"
+                    },
+                    {
+                        "name": "on_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "type": "string",
+                                    "format": "date"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ],
+                            "description": "Filter slots by specific date",
+                            "examples": [
+                                "2026-01-01"
+                            ],
+                            "title": "On Date"
+                        },
+                        "description": "Filter slots by specific date"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BookableTimeSlotSchema"
+                                    },
+                                    "title": "Response List Bookable Slots Api V1 Time Slots Bookable Get"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found: No available slots found for the given criteria"
+                    },
+                    "422": {
+                        "description": "Unprocessable Content: Invalid query parameters (structural)"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Unexpected system failure"
+                    }
+                }
+            }
+        },
+        "/api/v1/bookings/anonymous": {
+            "post": {
+                "tags": [
+                    "public:bookings"
+                ],
+                "summary": "Make Anonymous Booking",
+                "operationId": "make_anonymous_booking_api_v1_bookings_anonymous_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAnonymousBookingSchema"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResponseBookingSchema"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Master, time slot, or service does not exist"
+                    },
+                    "409": {
+                        "description": "Client with this phone number already exists"
+                    },
+                    "422": {
+                        "description": "Slot is unavailable, in the past, or client is blocked"
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Unexpected system failure"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "PublicMasterProfileSchema": {
+                "properties": {
+                    "master_id": {
+                        "type": "integer",
+                        "title": "Master Id",
+                        "description": "Master's unique identifier"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name",
+                        "description": "Master's full name"
+                    },
+                    "contact": {
+                        "$ref": "#/components/schemas/ContactSchema",
+                        "description": "Master's public contact information"
+                    },
+                    "online_booking": {
+                        "type": "boolean",
+                        "title": "Online Booking",
+                        "description": "Whether online booking is enabled for the master"
+                    },
+                    "avatar_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Avatar Url",
+                        "description": "URL of the master's avatar"
+                    },
+                    "cover_url": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Cover Url",
+                        "description": "URL of the master's cover/palette"
+                    },
+                    "portfolio": {
+                        "items": {
+                            "$ref": "#/components/schemas/PhotoSchema"
+                        },
+                        "type": "array",
+                        "title": "Portfolio",
+                        "description": "Master's portfolio photos"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Profile creation timestamp"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At",
+                        "description": "Profile update timestamp"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "master_id",
+                    "name",
+                    "contact",
+                    "online_booking",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PublicMasterProfileSchema"
+            },
+            "ContactSchema": {
+                "properties": {
+                    "address": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Address",
+                        "description": "Physical address"
+                    },
+                    "about": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "About",
+                        "description": "About info"
+                    },
+                    "telegram_link": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Telegram Link",
+                        "description": "Telegram profile link"
+                    },
+                    "instagram_link": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Instagram Link",
+                        "description": "Instagram profile link"
+                    },
+                    "google_maps_link": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Google Maps Link",
+                        "description": "Google Maps location link"
+                    },
+                    "phone_number": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Phone Number",
+                        "description": "Phone number"
+                    },
+                    "has_telegram": {
+                        "type": "boolean",
+                        "title": "Has Telegram",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "title": "ContactSchema"
+            },
+            "PhotoSchema": {
+                "properties": {
+                    "photo_id": {
+                        "type": "integer",
+                        "title": "Photo Id",
+                        "description": "Unique photo identifier"
+                    },
+                    "url": {
+                        "type": "string",
+                        "title": "Url",
+                        "description": "URL of the photo"
+                    },
+                    "position": {
+                        "type": "integer",
+                        "title": "Position",
+                        "description": "Display position in the master's portfolio"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At",
+                        "description": "Photo creation timestamp"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At",
+                        "description": "Photo update timestamp"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "photo_id",
+                    "url",
+                    "position",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "PhotoSchema"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    },
+                    "input": {
+                        "title": "Input"
+                    },
+                    "ctx": {
+                        "type": "object",
+                        "title": "Context"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            },
+            "PaginatedResponse_ResponseServiceSchema_": {
+                "properties": {
+                    "items": {
+                        "items": {
+                            "$ref": "#/components/schemas/ResponseServiceSchema"
+                        },
+                        "type": "array",
+                        "title": "Items",
+                        "description": "List of resources"
+                    },
+                    "pagination": {
+                        "$ref": "#/components/schemas/Pagination"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "items",
+                    "pagination"
+                ],
+                "title": "PaginatedResponse[ResponseServiceSchema]"
+            },
+            "ResponseServiceSchema": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 3,
+                        "title": "Title",
+                        "description": "Service display name",
+                        "examples": [
+                            "Ламінування брів"
+                        ]
+                    },
+                    "price": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "title": "Price",
+                        "description": "Service price in minor units (cents/kopecks)",
+                        "examples": [
+                            5000
+                        ]
+                    },
+                    "duration": {
+                        "type": "string",
+                        "format": "duration",
+                        "title": "Duration",
+                        "description": "Duration in ISO 8601 format (e.g., PT30M for 30 mins)",
+                        "examples": [
+                            "PT30M"
+                        ]
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description",
+                        "description": "Optional detailed description of the service"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^#(?:[0-9A-Fa-f]{3}){1,2}$",
+                                "description": "HEX color code (e.g., #BE123C)",
+                                "examples": [
+                                    "#BE123C"
+                                ]
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color",
+                        "description": "Optional HEX color code for branding/identification",
+                        "examples": [
+                            "#BE123C"
+                        ]
+                    },
+                    "id": {
+                        "type": "integer",
+                        "title": "Id",
+                        "description": "Unique database identifier"
+                    },
+                    "master_id": {
+                        "type": "integer",
+                        "title": "Master Id",
+                        "description": "Unique identifier of the service provider"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "title": "Is Active",
+                        "description": "Whether the service is active",
+                        "default": true
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title",
+                    "price",
+                    "duration",
+                    "id",
+                    "master_id"
+                ],
+                "title": "ResponseServiceSchema",
+                "description": "Schema for serializing service data in API responses."
+            },
+            "Pagination": {
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "maximum": 100,
+                        "minimum": 1,
+                        "title": "Limit",
+                        "description": "Maximum number of items returned in the response",
+                        "examples": [
+                            10
+                        ]
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "title": "Offset",
+                        "description": "Number of items skipped from the beginning",
+                        "examples": [
+                            0
+                        ]
+                    },
+                    "has_next": {
+                        "type": "boolean",
+                        "title": "Has Next",
+                        "description": "Indicates if more items are available",
+                        "examples": [
+                            true
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "limit",
+                    "offset",
+                    "has_next"
+                ],
+                "title": "Pagination"
+            },
+            "BookableTimeSlotSchema": {
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Start Time",
+                        "description": "Start time of the booking slot",
+                        "examples": [
+                            "2026-08-15T13:00:00.000000"
+                        ]
+                    },
+                    "group_ids": {
+                        "items": {
+                            "type": "integer"
+                        },
+                        "type": "array",
+                        "title": "Group Ids",
+                        "description": "IDs of the raw slots that make up this bookable slot",
+                        "examples": [
+                            1,
+                            2,
+                            3
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "start_time",
+                    "group_ids"
+                ],
+                "title": "BookableTimeSlotSchema",
+                "description": "Represents a block of time slots."
+            },
+            "CreateAnonymousBookingSchema": {
+                "properties": {
+                    "master_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "title": "Master Id",
+                        "description": "Unique identifier of the master",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "service_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "title": "Service Id",
+                        "description": "Unique identifier of the service",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "time_slot_ids": {
+                        "items": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Unique identifier of the time slot",
+                            "examples": [
+                                1
+                            ]
+                        },
+                        "type": "array",
+                        "minItems": 1,
+                        "title": "Time Slot Ids",
+                        "description": "List of time slot identifiers"
+                    },
+                    "name": {
+                        "type": "string",
+                        "title": "Name",
+                        "description": "Client's name"
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "title": "Phone Number",
+                        "description": "Client's phone number"
+                    },
+                    "email": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "email"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Email",
+                        "description": "Client's email address"
+                    },
+                    "instagram_username": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 30,
+                                "minLength": 1
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Instagram Username",
+                        "description": "Client's instagram username"
+                    },
+                    "telegram_username": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 32,
+                                "minLength": 5
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Telegram Username",
+                        "description": "Client's telegram username"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "master_id",
+                    "service_id",
+                    "time_slot_ids",
+                    "name",
+                    "phone_number"
+                ],
+                "title": "CreateAnonymousBookingSchema"
+            },
+            "ResponseBookingSchema": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "title": "Id",
+                        "description": "Unique identifier of the booking",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "client_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "title": "Client Id",
+                        "description": "Unique identifier of the client",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "master_id": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "title": "Master Id",
+                        "description": "Unique identifier of the master",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "service": {
+                        "$ref": "#/components/schemas/ResponseServiceSchema",
+                        "description": "Service"
+                    },
+                    "time_slot": {
+                        "$ref": "#/components/schemas/TimeSlotSchema",
+                        "description": "Time slot"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/BookingStatus",
+                        "description": "Status of the booking",
+                        "examples": [
+                            "active"
+                        ]
+                    },
+                    "notes": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Notes",
+                        "description": "Provider's notes about the booking"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "client_id",
+                    "master_id",
+                    "service",
+                    "time_slot",
+                    "status"
+                ],
+                "title": "ResponseBookingSchema",
+                "description": "Schema for response booking."
+            },
+            "TimeSlotSchema": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "title": "Id",
+                        "description": "Unique identifier of the time slot",
+                        "examples": [
+                            101
+                        ]
+                    },
+                    "master_id": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "title": "Master Id",
+                        "description": "Owner of the slot",
+                        "examples": [
+                            1
+                        ]
+                    },
+                    "start": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Start",
+                        "description": "Start time"
+                    },
+                    "end": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "End",
+                        "description": "End time"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/TimeSlotStatus",
+                        "description": "Current status of the slot",
+                        "default": "available"
+                    },
+                    "cutoff": {
+                        "type": "string",
+                        "format": "duration",
+                        "title": "Cutoff",
+                        "description": "Minimum duration before start required for booking"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "master_id",
+                    "start",
+                    "end",
+                    "cutoff"
+                ],
+                "title": "TimeSlotSchema",
+                "description": "Schema representing an existing time slot with its unique identifier and current status.",
+                "example": {
+                    "end": "2024-05-20T11:00:00",
+                    "id": 101,
+                    "master_id": 1,
+                    "start": "2024-05-20T10:00:00",
+                    "status": "available"
+                }
+            },
+            "TimeSlotStatus": {
+                "type": "string",
+                "enum": [
+                    "available",
+                    "booked",
+                    "wasted",
+                    "pending"
+                ],
+                "title": "TimeSlotStatus"
+            },
+            "BookingStatus": {
+                "type": "string",
+                "enum": [
+                    "cancelled",
+                    "active",
+                    "completed",
+                    "pending"
+                ],
+                "title": "BookingStatus",
+                "description": "Represents the status of a booking."
+            }
+        }
+    }
+}

@@ -18,9 +18,9 @@ import { uk } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface CustomCalendarProps {
-  value: string; // "yyyy-MM-dd"
+  value: string | null; // "yyyy-MM-dd"
   onChange: (date: string) => void;
-  availableDates?: string[];
+  availableDates: string[];
   className?: string;
   compact?: boolean;
 }
@@ -32,7 +32,10 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
   className = "",
   compact = true,
 }) => {
-  const [currentMonth, setCurrentMonth] = useState(value ? parseISO(value) : new Date());
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const initialIso = value || availableDates[0];
+    return parseISO(initialIso);
+  });
 
   const onDateClick = (day: Date) => {
     onChange(format(day, "yyyy-MM-dd"));
@@ -98,7 +101,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({
           const isSelected = selectedDate && isSameDay(day, selectedDate);
           const current = isSameMonth(day, monthStart);
           const dateKey = format(day, "yyyy-MM-dd");
-          const isAvailable = !availableDates || availableDates.includes(dateKey);
+          const isAvailable = availableDates.includes(dateKey);
 
           let buttonSizeClass = "";
           let buttonStateClass = "";

@@ -40,6 +40,21 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   showContactForm = false,
 }) => {
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isFormValid, setIsFormValid] = useState(!showContactForm);
+
+  const handleFormInput = (e: React.SyntheticEvent<HTMLFormElement>) => {
+    if (!showContactForm) return;
+
+    const formData = new FormData(e.currentTarget);
+    const result = createBookingSchema.safeParse({
+      ...Object.fromEntries(formData),
+      master_id: masterId,
+      service_id: service.id,
+      time_slot_ids: slot.group_ids,
+    });
+
+    setIsFormValid(result.success);
+  };
 
   const startTime = parseISO(slot.start_time);
   const durationMinutes = getDurationMinutes(service.duration);
@@ -78,7 +93,12 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 flex flex-col min-h-full">
+    <form
+      onSubmit={handleSubmit}
+      onInput={handleFormInput}
+      onChange={handleFormInput}
+      className="space-y-4 sm:space-y-6 flex flex-col min-h-full"
+    >
       <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
         <div className="bg-white rounded-2xl border-[0.5px] border-slate-200/50 p-4">
           <div className="flex items-start gap-3">
@@ -138,8 +158,8 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
       <div className="sticky bottom-0 z-50 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-4 sm:py-6 mt-6 bg-[#FDFBFB]/80 backdrop-blur-md border-t border-slate-200/50 flex justify-center">
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="pointer-events-auto w-full max-w-sm h-14 flex items-center justify-center gap-2 rounded-full px-5 text-[16px] font-semibold transition-all duration-300 bg-zinc-950 text-white shadow-xl hover:bg-zinc-800 disabled:opacity-80 disabled:cursor-not-allowed"
+          disabled={isSubmitting || !isFormValid}
+          className="pointer-events-auto w-full max-w-sm h-14 flex items-center justify-center gap-2 rounded-full px-5 text-[16px] font-semibold transition-all duration-300 bg-zinc-950 text-white shadow-xl hover:bg-zinc-800 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : "Записатися"}
         </button>

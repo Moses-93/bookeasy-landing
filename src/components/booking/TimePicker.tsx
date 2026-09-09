@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, CalendarX } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 import type { IBookableTimeSlot } from "@/lib/types";
@@ -9,7 +9,7 @@ import CustomCalendar from "@/components/ui/CustomCalendar";
 
 interface TimePickerProps {
   availableDates: string[];
-  selectedDate: Date;
+  selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
   timeSlots: IBookableTimeSlot[];
   selectedSlot: IBookableTimeSlot | null;
@@ -26,12 +26,29 @@ const TimePicker: React.FC<TimePickerProps> = ({
   onSelectSlot,
   isSlotsLoading = false,
 }) => {
+  if (availableDates.length === 0) {
+    return (
+      <div className="mx-auto max-w-xl rounded-3xl border border-zinc-200/80 bg-white/70 p-6 text-center shadow-[0_8px_30px_rgba(0,0,0,0.04)] backdrop-blur-md sm:p-10">
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500">
+          <CalendarX className="h-7 w-7" />
+        </div>
+        <h3 className="mb-2 text-lg font-bold text-stone-900 sm:text-xl">
+          Немає доступних дат для запису
+        </h3>
+        <p className="text-[14px] leading-relaxed text-zinc-500">
+          Наразі у майстра немає вільних віконець у розкладі. Будь ласка, перевірте графік пізніше
+          або зв&apos;яжіться з майстром для узгодження запису.
+        </p>
+      </div>
+    );
+  }
+
   const formatSlotTime = (slot: IBookableTimeSlot) => {
     const start = parseISO(slot.start_time);
     return format(start, "HH:mm");
   };
 
-  const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+  const selectedDateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-6 md:flex-row md:items-start md:justify-center">
@@ -84,6 +101,12 @@ const TimePicker: React.FC<TimePickerProps> = ({
                 </button>
               );
             })}
+          </div>
+        ) : !selectedDate ? (
+          <div className="rounded-[24px] bg-white/60 backdrop-blur-md border border-white/80 px-4 py-8 text-center shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+            <p className="text-sm font-medium text-zinc-400">
+              Оберіть дату в календарі
+            </p>
           </div>
         ) : (
           <div className="rounded-[24px] bg-white/60 backdrop-blur-md border border-white/80 px-4 py-8 text-center shadow-[0_4px_24px_rgba(0,0,0,0.02)]">

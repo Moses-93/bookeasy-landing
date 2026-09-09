@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 import type {
   ICreateBooking,
@@ -49,6 +49,10 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
 
   const handleBookingComplete = onComplete || createAnonymousBooking;
 
+  const initialDate = React.useMemo(() => {
+    return availableDates && availableDates.length > 0 ? parseISO(availableDates[0]) : null;
+  }, [availableDates]);
+
   const {
     step,
     selectedService,
@@ -63,7 +67,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
     handleBack,
     handleBook,
     resetFlow,
-  } = useBookingFlow({ onComplete: handleBookingComplete, maxSteps: 3 });
+  } = useBookingFlow({ onComplete: handleBookingComplete, maxSteps: 3, initialDate });
 
   const duration = selectedService?.duration;
   const formattedDate = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
@@ -151,7 +155,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           <MasterPortfolio photos={masterInfo.portfolio} />
         </div>
 
-        <footer className="fixed inset-x-0 bottom-0 z-[60] pb-6 pt-12 px-4 sm:px-6 flex justify-center bg-gradient-to-t from-[#FDFBFB] via-[#FDFBFB]/90 to-transparent backdrop-blur-[2px] pointer-events-none">
+        <footer className="fixed inset-x-0 bottom-0 z-[60] pb-6 pt-12 px-4 sm:px-6 flex justify-center bg-gradient-to-t from-[#FDFBFB] via-[#FDFBFB]/90 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_top,black_60%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_top,black_60%,transparent_100%)] pointer-events-none">
           <style>{`
             @keyframes beauty-pulse {
               0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(43, 3, 10, 0.15); }
@@ -258,6 +262,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
 
           {step === 3 &&
             selectedService &&
+            selectedDate &&
             (masterInfo && masterInfo.online_booking === false ? (
               <div className="rounded-3xl border border-amber-100 bg-white p-6 sm:p-10 text-center max-w-xl mx-auto shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
                 <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -294,8 +299,8 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
                 onClick={handleNext}
                 disabled={!canProceed}
                 className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${canProceed
-                    ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
-                    : "cursor-not-allowed bg-white/50 text-stone-400"
+                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
+                  : "cursor-not-allowed bg-white/50 text-stone-400"
                   }`}
               >
                 {selectedService ? "Далі" : "Оберіть послугу"}
@@ -308,8 +313,8 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
                 onClick={handleNext}
                 disabled={!canProceed}
                 className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${canProceed
-                    ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
-                    : "cursor-not-allowed bg-white/50 text-stone-400"
+                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
+                  : "cursor-not-allowed bg-white/50 text-stone-400"
                   }`}
               >
                 {selectedSlot ? "Далі" : "Оберіть час"}

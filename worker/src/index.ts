@@ -14,6 +14,15 @@ const VERCEL_EXACT: ReadonlySet<string> = new Set([
   "/bookeasy-logo-180.png",
   "/bookeasy-logo-192.png",
   "/bookeasy-logo-512.png",
+  "/analytics.png",
+  "/booking-details.png",
+  "/client-summary.png",
+  "/day-calendar.png",
+  "/master-expenses.png",
+  "/master-schedule.png",
+  "/master-services.png",
+  "/master-storefront.png",
+  "/online-section.png",
 ]);
 
 function isVercelRoute(pathname: string): boolean {

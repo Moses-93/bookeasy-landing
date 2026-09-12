@@ -55,15 +55,45 @@ interface FaqSection {
 }
 
 
+interface SocialProofMetric {
+  value: number;
+  suffix?: string;
+  label: string;
+}
+
+interface SocialProofCopy {
+  metrics: SocialProofMetric[];
+}
+
 interface MarketingCopyPack {
   landing: LandingPageCopy;
   benefits: BenefitsPageCopy;
   howItWorks: HowItWorksPageCopy;
   whoIsItFor: WhoIsItForSection;
   faq: FaqSection;
+  socialProof: SocialProofCopy;
 }
 
 export const MARKETING_COPY: MarketingCopyPack = {
+  socialProof: {
+    metrics: [
+      {
+        value: 4000,
+        suffix: "+",
+        label: "бронювань щотижня",
+      },
+      {
+        value: 15,
+        suffix: "+",
+        label: "нових майстрів щодня",
+      },
+      {
+        value: 15,
+        suffix: "+",
+        label: "заощаджених годин щомісяця",
+      },
+    ],
+  },
   whoIsItFor: {
     eyebrow: "Кому підійде",
     heading: "BOOKEASY для вас, якщо ваш напрямок:",

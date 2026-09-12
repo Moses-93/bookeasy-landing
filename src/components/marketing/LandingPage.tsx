@@ -4,53 +4,13 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, ShieldBan, HeartHandshake } from "lucide-react";
-import { motion } from "framer-motion";
-import Footer from "../ui/Footer";
-import Brand from "../ui/Brand";
-import { PremiumPlan } from "./PremiumPlan";
-import { MARKETING_COPY } from "./copy";
-import { WhoIsItFor } from "./WhoIsItFor";
-import { FAQ } from "./FAQ";
+import { Footer, Brand, ScrollReveal } from "@/components/ui";
+import { PremiumPlan, MARKETING_COPY, WhoIsItFor, FAQ, SocialProof } from "@/components/marketing";
 
 const JsonLd = ({ data }: { data: Record<string, unknown> }) => (
   <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />
 );
 
-const motionElements = {
-  div: motion.div,
-  h1: motion.h1,
-  p: motion.p,
-};
-
-export function ScrollReveal({
-  children,
-  className = "",
-  y = 30,
-  delay = 0,
-  fade = false,
-  as = "div",
-}: {
-  children: React.ReactNode;
-  className?: string;
-  y?: number;
-  delay?: number;
-  fade?: boolean;
-  as?: "div" | "h1" | "p";
-}) {
-  const MotionComponent = motionElements[as] || motion.div;
-
-  return (
-    <MotionComponent
-      initial={{ opacity: 0, y: fade ? 0 : y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-      transition={{ duration: 0.6, delay, ease: [0.25, 1, 0.5, 1] }}
-      className={className}
-    >
-      {children}
-    </MotionComponent>
-  );
-}
 
 const LandingPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -244,6 +204,8 @@ const LandingPage = () => {
             </ScrollReveal>
           </div>
         </section>
+
+        <SocialProof />
 
         <section
           id="benefits"

@@ -85,7 +85,7 @@ export default async function MasterPage({ params }: PageProps) {
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "HealthAndBeautyBusiness",
+    "@type": "LocalBusiness",
     "@id": currentUrl,
     name: profile.name,
     ...(currentUrl ? { url: currentUrl } : {}),

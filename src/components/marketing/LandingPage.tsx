@@ -42,7 +42,7 @@ const LandingPage = () => {
           operatingSystem: "Web",
           url: "https://bookeasy.com.ua",
           description:
-            "Онлайн-запис та керування графіком для beauty-майстрів. Контроль над розкладом, спокій у роботі та більше вільного часу.",
+            "Застосунок для запису клієнтів та керування графіком. База клієнтів, історія візитів, аналітика, нагадування, онлайн-запис.",
           offers: {
             "@type": "AggregateOffer",
             priceCurrency: "UAH",
@@ -90,6 +90,20 @@ const LandingPage = () => {
               },
             ],
           },
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: copy.faq.items.map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: item.answer,
+            },
+          })),
         }}
       />
       <nav

@@ -169,43 +169,31 @@ const LandingPage = () => {
           className="relative min-h-[90vh] sm:min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[linear-gradient(180deg,#FAF4F2_0%,#EAD0C9_50%,#FFFBFB_100%)] md:bg-[linear-gradient(180deg,#FAF4F2_0%,#F5E3DE_70%,#FFFBFB_100%)]"
         >
           <div className="max-w-4xl mx-auto px-6 pt-24 pb-16 relative z-10 text-center flex flex-col items-center">
-            <ScrollReveal
-              as="p"
-              trigger="mount"
-              y={15}
-              delay={0.1}
-              className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#8F5E66] font-semibold font-mono mb-4 sm:mb-6"
+            <p
+              style={{ "--reveal-y": "15px", "--reveal-delay": "0.1s" } as React.CSSProperties}
+              className="hero-reveal text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#8F5E66] font-semibold font-mono mb-4 sm:mb-6"
             >
               {copy.landing.eyebrow}
-            </ScrollReveal>
-            <ScrollReveal
-              as="h1"
-              trigger="mount"
-              y={20}
-              delay={0.2}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] font-display max-w-4xl text-[#2C050C] text-center"
+            </p>
+            <h1
+              style={{ "--reveal-y": "20px", "--reveal-delay": "0.2s" } as React.CSSProperties}
+              className="hero-reveal text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] font-display max-w-4xl text-[#2C050C] text-center"
             >
               Інструмент, що <br className="hidden sm:block" />
               <span className="italic font-display font-medium text-[#2C050C]">
                 дбає про майстра.
               </span>
-            </ScrollReveal>
-            <ScrollReveal
-              as="p"
-              trigger="mount"
-              y={20}
-              delay={0.3}
-              className="text-base sm:text-lg md:text-xl text-[#5A3D42] mt-6 sm:mt-8 max-w-2xl leading-relaxed mx-auto font-sans"
+            </h1>
+            <p
+              style={{ "--reveal-y": "20px", "--reveal-delay": "0.3s" } as React.CSSProperties}
+              className="hero-reveal text-base sm:text-lg md:text-xl text-[#5A3D42] mt-6 sm:mt-8 max-w-2xl leading-relaxed mx-auto font-sans"
             >
               {copy.landing.subheadline}
-            </ScrollReveal>
+            </p>
 
-            <ScrollReveal
-              as="div"
-              trigger="mount"
-              y={20}
-              delay={0.4}
-              className="mt-10 sm:mt-12 flex flex-col items-center gap-4 w-full"
+            <div
+              style={{ "--reveal-y": "20px", "--reveal-delay": "0.4s" } as React.CSSProperties}
+              className="hero-reveal mt-10 sm:mt-12 flex flex-col items-center gap-4 w-full"
             >
               <Link
                 href="/register"
@@ -219,7 +207,7 @@ const LandingPage = () => {
                 <span className="text-rose-300/60">•</span>
                 <span>Без кредитних карток</span>
               </p>
-            </ScrollReveal>
+            </div>
           </div>
         </section>
 

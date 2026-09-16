@@ -12,7 +12,7 @@ from typing import List, Tuple
 
 HEADER_PATTERN = re.compile(
     r"^(?P<type>feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)"
-    r"(\((?P<scope>[a-z0-9_-]+)\))?: "
+    r"(\((?P<scope>[a-z0-9-]+)\))?: "
     r"(?P<title>[a-z0-9].+)$"
 )
 

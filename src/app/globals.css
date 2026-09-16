@@ -180,11 +180,18 @@ button {
   }
 }
 
-html.is-bot .hero-anim-badge,
-html.is-bot .hero-anim-title,
-html.is-bot .hero-anim-subtitle,
-html.is-bot .hero-anim-cta {
+html.is-bot,
+html.is-bot *, 
+html.is-bot *::before, 
+html.is-bot *::after {
   animation: none !important;
+  animation-delay: 0s !important;
+  animation-duration: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
   opacity: 1 !important;
   transform: none !important;
+  visibility: visible !important;
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
@@ -61,24 +62,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headerList = await headers();
+  const userAgent = headerList.get("user-agent") || "";
+  const isBot = /Googlebot|Google-InspectionTool|HeadlessChrome|bot|crawler|spider|lighthouse/i.test(userAgent);
+
   return (
     <html
       lang="uk"
       data-scroll-behavior="smooth"
-      className={`${inter.variable} ${spaceGrotesk.variable} antialiased scroll-smooth`}
+      className={`${inter.variable} ${spaceGrotesk.variable} ${isBot ? "is-bot" : ""} antialiased scroll-smooth`}
     >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){if(/Google-InspectionTool|Googlebot|HeadlessChrome|Lighthouse/i.test(navigator.userAgent)){document.documentElement.classList.add('is-bot');}})();`,
-          }}
-        />
-      </head>
       <body className="min-h-screen flex flex-col font-sans">{children}</body>
     </html>
   );

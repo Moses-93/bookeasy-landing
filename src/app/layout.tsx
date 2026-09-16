@@ -72,6 +72,13 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={`${inter.variable} ${spaceGrotesk.variable} antialiased scroll-smooth`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){if(/Google-InspectionTool|Googlebot|HeadlessChrome|Lighthouse/i.test(navigator.userAgent)){document.documentElement.classList.add('is-bot');}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col font-sans">{children}</body>
     </html>
   );

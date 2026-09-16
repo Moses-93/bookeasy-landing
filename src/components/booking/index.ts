@@ -3,4 +3,5 @@ export { default as ServiceSelector } from "./ServiceSelector";
 export { default as TimePicker } from "./TimePicker";
 export { default as BookingConfirmation } from "./BookingConfirmation";
 export { default as BookingSuccess } from "./BookingSuccess";
+export { default as ServiceDetailModal } from "./ServiceDetailModal";
 export * from "./MasterStorefront";

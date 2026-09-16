@@ -33,13 +33,19 @@ interface HowItWorksPageCopy {
   steps: HowItWorksStep[];
 }
 
-interface DirectionCard {
+export type DirectionIconKey = "beauty" | "tattoo" | "massage" | "practice";
+
+export interface DirectionCard {
+  id: string;
   label: string;
+  subtitle: string;
+  iconKey: DirectionIconKey;
 }
 
 interface WhoIsItForSection {
   eyebrow: string;
   heading: string;
+  subheadline: string;
   directions: DirectionCard[];
 }
 
@@ -96,15 +102,34 @@ export const MARKETING_COPY: MarketingCopyPack = {
   },
   whoIsItFor: {
     eyebrow: "Кому підійде",
-    heading: "BOOKEASY для вас, якщо ваш напрямок:",
+    heading: "BOOKEASY для кожного, хто веде запис",
+    subheadline:
+      "Якщо ваш день складається з віконець, послуг та постійних клієнтів — сервіс підлаштовується під ваш робочий ритм.",
     directions: [
-      { label: "Нігті" },
-      { label: "Волосся" },
-      { label: "Брови та вії" },
-      { label: "Макіяж" },
-      { label: "Епіляція" },
-      { label: "Косметологія" },
-      { label: "Та інші напрямки" },
+      {
+        id: "beauty",
+        label: "Beauty",
+        subtitle: "Нігті, волосся, брови та вії, косметологія",
+        iconKey: "beauty",
+      },
+      {
+        id: "tattoo",
+        label: "Тату",
+        subtitle: "Художнє татуювання, пірсинг, перманент",
+        iconKey: "tattoo",
+      },
+      {
+        id: "massage",
+        label: "Масаж",
+        subtitle: "Масаж тіла, SPA, остеопатія, реабілітація",
+        iconKey: "massage",
+      },
+      {
+        id: "practice",
+        label: "Приватна практика",
+        subtitle: "Консультації лікарів, психотерапія, фотографи",
+        iconKey: "practice",
+      },
     ],
   },
   landing: {
@@ -189,7 +214,7 @@ export const MARKETING_COPY: MarketingCopyPack = {
       {
         question: "Для кого створений BOOKEASY?",
         answer:
-          "BOOKEASY — для самозайнятих б'юті-майстрів: манікюр, педикюр, брови та вії, волосся, макіяж, косметологія, епіляція. Якщо ви працюєте самостійно й хочете, щоб клієнти записувалися без узгоджень у директі, — це для вас.",
+          "BOOKEASY — для професіоналів, які ведуть запис клієнтів у сфері beauty, тату, масажу, приватної медицини чи медіа. Якщо вам потрібен зручний простір для записів, історії візитів та контролю за розкладом без хаосу в блокнотах чи таблицях, — це для вас.",
       },
       {
         question: "Як працює онлайн-запис?",

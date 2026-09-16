@@ -107,17 +107,11 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
               </button>
             </div>
 
-            {service.description && (
-              <div className="my-5 max-h-[50vh] overflow-y-auto pr-1 text-[15px] font-normal leading-[1.65] tracking-[-0.01em] text-zinc-600 space-y-3.5">
-                {service.description
-                  .split(/\r?\n\s*\r?\n/)
-                  .map((paragraph, index) => (
-                    <p key={index} className="whitespace-normal break-words">
-                      {paragraph.trim()}
-                    </p>
-                  ))}
-              </div>
-            )}
+            {service.description ? (
+              <p className="my-5 max-h-[50vh] overflow-y-auto pr-1 text-[15px] font-normal leading-[1.65] tracking-[-0.01em] text-zinc-600 whitespace-pre-line break-words">
+                {service.description.trim()}
+              </p>
+            ) : null}
 
             <button
               type="button"

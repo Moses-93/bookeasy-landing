@@ -217,28 +217,28 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
         </div>
       </header>
 
-      {masterInfo && masterInfo.online_booking === false && (
+      {masterInfo && masterInfo.online_booking === false ? (
         <div className="bg-amber-50 border-y border-amber-100 px-4 py-3 sm:px-6 flex items-center gap-2.5 text-[13px] font-medium text-amber-900">
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
           Онлайн-запис наразі вимкнено майстром. Ви можете переглядати послуги та віконця.
         </div>
-      )}
+      ) : null}
 
       <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <div className="space-y-4 sm:space-y-6">
-          {errorMsg && (
+          {errorMsg ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
               {errorMsg}
             </div>
-          )}
+          ) : null}
 
-          {stepHeader && (
+          {stepHeader ? (
             <section>
               <h1 className="text-left text-[14px] font-semibold uppercase tracking-[0.14em] text-stone-500">
                 {stepHeader.title}
               </h1>
             </section>
-          )}
+          ) : null}
 
           {step === 1 && (
             <ServiceSelector
@@ -261,9 +261,9 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           )}
 
           {step === 3 &&
-            selectedService &&
-            selectedDate &&
-            (masterInfo && masterInfo.online_booking === false ? (
+          selectedService &&
+          selectedDate ? (
+            masterInfo && masterInfo.online_booking === false ? (
               <div className="rounded-3xl border border-amber-100 bg-white p-6 sm:p-10 text-center max-w-xl mx-auto shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
                 <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <CalendarDays className="w-7 h-7" />
@@ -287,11 +287,12 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
                 isSubmitting={isSubmitting}
                 showContactForm={showContactForm}
               />
-            ))}
+            )
+          ) : null}
         </div>
       </div>
 
-      {step < 3 && (
+      {step < 3 ? (
         <footer className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/60 bg-white/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-5xl items-center justify-end px-4 pt-3 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:py-4 lg:px-8">
             {step === 1 && (
@@ -304,7 +305,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
                   }`}
               >
                 {selectedService ? "Далі" : "Оберіть послугу"}
-                {selectedService && <ChevronRight size={18} />}
+                {selectedService ? <ChevronRight size={18} /> : null}
               </button>
             )}
 
@@ -318,12 +319,12 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
                   }`}
               >
                 {selectedSlot ? "Далі" : "Оберіть час"}
-                {selectedSlot && <ChevronRight size={18} />}
+                {selectedSlot ? <ChevronRight size={18} /> : null}
               </button>
             )}
           </div>
         </footer>
-      )}
+      ) : null}
     </div>
   );
 };

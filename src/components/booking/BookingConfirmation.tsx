@@ -137,13 +137,13 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
         </div>
       </div>
 
-      {validationError && (
+      {validationError ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-800">
           {validationError}
         </div>
-      )}
+      ) : null}
 
-      {showContactForm && <ClientFormFields disabled={isSubmitting} />}
+      {showContactForm ? <ClientFormFields disabled={isSubmitting} /> : null}
 
       <div className="text-center text-xs text-slate-400 mt-2 pb-4">
         <Link href="/terms" className="hover:text-slate-600 transition-colors">

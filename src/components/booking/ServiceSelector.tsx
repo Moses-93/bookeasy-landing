@@ -51,7 +51,7 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
                   isSelected ? "border border-zinc-950 bg-white" : "border border-zinc-200 bg-white"
                 }`}
               >
-                {isSelected && <div className="h-2.5 w-2.5 rounded-full bg-zinc-950" />}
+                {isSelected ? <div className="h-2.5 w-2.5 rounded-full bg-zinc-950" /> : null}
               </div>
 
               <div className="min-w-0 pr-9 sm:pr-10">
@@ -63,7 +63,7 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
                   >
                     {service.title}
                   </h4>
-                  {hasDescription && (
+                  {hasDescription ? (
                     <button
                       type="button"
                       onClick={(e) => {
@@ -75,14 +75,14 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
                     >
                       <Info size={15} />
                     </button>
-                  )}
+                  ) : null}
                 </div>
 
-                {hasDescription && (
+                {hasDescription ? (
                   <p className="mt-1 line-clamp-1 text-[13px] leading-relaxed text-stone-500 break-words">
                     {service.description}
                   </p>
-                )}
+                ) : null}
               </div>
 
               <div className="mt-1 flex w-full items-end gap-2.5 sm:mt-3 sm:gap-3 md:mt-auto">
@@ -108,11 +108,11 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
         })}
       </div>
 
-      {visibleServices.length === 0 && (
+      {visibleServices.length === 0 ? (
         <div className="rounded-[24px] bg-white/60 backdrop-blur-md border border-white/80 shadow-sm px-6 py-10 text-center text-sm text-stone-500">
           Немає доступних послуг для запису.
         </div>
-      )}
+      ) : null}
 
       <ServiceDetailModal
         service={activeInfoService}

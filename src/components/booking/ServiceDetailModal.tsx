@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { X, Clock } from "lucide-react";
 import { getDurationMinutes, formatPrice } from "@/lib/formatters";
 import type { IService } from "@/lib/types";
@@ -15,8 +15,6 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
   service,
   onClose,
 }) => {
-  const shouldReduceMotion = useReducedMotion();
-
   useEffect(() => {
     if (!service) return;
 
@@ -40,12 +38,15 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
   return (
     <AnimatePresence>
       {service ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.15 }}
+        <motion.div
+          key="service-detail-modal-root"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+        >
+          <div
             onClick={onClose}
             className="fixed inset-0 bg-black/60"
             aria-hidden="true"
@@ -55,25 +56,12 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
             role="dialog"
             aria-modal="true"
             aria-labelledby="service-detail-title"
-            initial={
-              shouldReduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, scale: 0.96 }
-            }
-            animate={
-              shouldReduceMotion
-                ? { opacity: 1 }
-                : { opacity: 1, scale: 1 }
-            }
-            exit={
-              shouldReduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, scale: 0.96 }
-            }
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 12 }}
             transition={{
-              type: "spring",
-              damping: 25,
-              stiffness: 350,
+              duration: 0.2,
+              ease: [0.16, 1, 0.3, 1],
             }}
             onClick={(e) => e.stopPropagation()}
             className="relative z-10 flex max-h-[85vh] w-full max-w-lg flex-col rounded-[32px] border border-white/60 bg-white/95 p-6 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)] backdrop-blur-xl sm:rounded-[36px] sm:p-8"
@@ -121,7 +109,7 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
               Закрити
             </button>
           </motion.div>
-        </div>
+        </motion.div>
       ) : null}
     </AnimatePresence>
   );

@@ -1,10 +1,9 @@
 name = "bookeasy-router"
 main = "src/index.ts"
-compatibility_date = "2026-09-08"
+compatibility_date = "2026-09-14"
 
 [vars]
 VERCEL_ORIGIN = "https://bookeasy-landing.vercel.app"
-BACKEND_ORIGIN = "https://api.bookeasy.com.ua"
 
 [[routes]]
 pattern = "*bookeasy.com.ua/*"

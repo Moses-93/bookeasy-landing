@@ -155,7 +155,7 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
         </Link>
       </div>
 
-      <div className="sticky bottom-0 z-50 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-4 sm:py-6 mt-6 bg-[#FDFBFB]/80 backdrop-blur-md border-t border-slate-200/50 flex justify-center">
+      <div className="sticky bottom-0 z-50 -mx-4 sm:-mx-6 md:-mx-8 px-4 pt-3 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:py-6 md:px-8 mt-6 bg-[#FDFBFB]/80 backdrop-blur-md border-t border-slate-200/50 flex justify-center">
         <button
           type="submit"
           disabled={isSubmitting || !isFormValid}

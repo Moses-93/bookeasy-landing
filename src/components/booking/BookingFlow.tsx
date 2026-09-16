@@ -178,7 +178,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-[#FDFBFB] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFF0F0]/50 via-[#FDFBFB] to-[#FDFBFB] pb-24 sm:pb-28">
+    <div className="min-h-screen bg-[#FDFBFB] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFF0F0]/50 via-[#FDFBFB] to-[#FDFBFB] pb-32 sm:pb-36">
       <header className="sticky top-0 z-30 border-b border-white/60 bg-white/60 backdrop-blur-md">
         <div className="mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-2 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
           <div className="flex justify-start">
@@ -293,13 +293,13 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
 
       {step < 3 && (
         <footer className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/60 bg-white/80 backdrop-blur-md">
-          <div className="mx-auto flex max-w-5xl items-center justify-end px-4 py-2.5 sm:px-6 sm:py-4 lg:px-8">
+          <div className="mx-auto flex max-w-5xl items-center justify-end px-4 pt-3 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:py-4 lg:px-8">
             {step === 1 && (
               <button
                 onClick={handleNext}
                 disabled={!canProceed}
-                className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${canProceed
-                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
+                className={`inline-flex w-full sm:w-auto h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold transition-all duration-300 sm:px-8 ${canProceed
+                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)] active:scale-[0.98]"
                   : "cursor-not-allowed bg-white/50 text-stone-400"
                   }`}
               >
@@ -312,8 +312,8 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
               <button
                 onClick={handleNext}
                 disabled={!canProceed}
-                className={`inline-flex w-full sm:w-auto h-11 shrink-0 items-center justify-center gap-2 rounded-full px-5 text-sm font-medium transition-all duration-300 sm:h-auto sm:px-6 sm:py-3 ${canProceed
-                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)]"
+                className={`inline-flex w-full sm:w-auto h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold transition-all duration-300 sm:px-8 ${canProceed
+                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)] active:scale-[0.98]"
                   : "cursor-not-allowed bg-white/50 text-stone-400"
                   }`}
               >

@@ -33,9 +33,13 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
               role="button"
               tabIndex={0}
               aria-pressed={isSelected}
-              onClick={() => onSelectService(service)}
+              onClick={(e) => {
+                if (e.target === e.currentTarget || !(e.target as HTMLElement).closest("button")) {
+                  onSelectService(service);
+                }
+              }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
+                if ((e.key === "Enter" || e.key === " ") && (e.target === e.currentTarget)) {
                   e.preventDefault();
                   onSelectService(service);
                 }
@@ -69,6 +73,9 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         setActiveInfoService(service);
+                      }}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
                       }}
                       aria-label={`Детальніше про послугу ${service.title}`}
                       className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/30"

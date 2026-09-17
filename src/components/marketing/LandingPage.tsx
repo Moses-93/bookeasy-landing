@@ -166,23 +166,47 @@ const LandingPage = () => {
       <main>
         <section
           id="hero"
-          className="relative min-h-[90vh] sm:min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[linear-gradient(180deg,#FAF4F2_0%,#EAD0C9_50%,#FFFBFB_100%)] md:bg-[linear-gradient(180deg,#FAF4F2_0%,#F5E3DE_70%,#FFFBFB_100%)]"
+          className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 flex flex-col items-center overflow-hidden bg-[linear-gradient(180deg,#FAF4F2_0%,#EAD0C9_50%,#FFFBFB_100%)] md:bg-[linear-gradient(180deg,#FAF4F2_0%,#F5E3DE_70%,#FFFBFB_100%)]"
         >
-          <div className="max-w-4xl mx-auto px-6 pt-24 pb-16 relative z-10 text-center flex flex-col items-center">
-            <p className="hero-anim-badge text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#8F5E66] font-semibold font-mono mb-4 sm:mb-6">
+          <div className="max-w-4xl mx-auto px-6 relative z-10 text-center flex flex-col items-center">
+            <ScrollReveal
+              as="p"
+              trigger="mount"
+              y={15}
+              delay={0.1}
+              className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#8F5E66] font-semibold font-mono mb-4 sm:mb-6"
+            >
               {copy.landing.eyebrow}
-            </p>
-            <h1 className="hero-anim-title text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] font-display max-w-4xl text-[#2C050C] text-center">
+            </ScrollReveal>
+            <ScrollReveal
+              as="h1"
+              trigger="mount"
+              y={20}
+              delay={0.2}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-semibold tracking-tight leading-[1.05] font-display max-w-4xl text-[#2C050C] text-center"
+            >
               Інструмент, що <br className="hidden sm:block" />
               <span className="italic font-display font-medium text-[#2C050C]">
                 дбає про майстра.
               </span>
-            </h1>
-            <p className="hero-anim-subtitle text-base sm:text-lg md:text-xl text-[#5A3D42] mt-6 sm:mt-8 max-w-2xl leading-relaxed mx-auto font-sans">
+            </ScrollReveal>
+            <ScrollReveal
+              as="p"
+              trigger="mount"
+              y={20}
+              delay={0.3}
+              className="text-base sm:text-lg md:text-xl text-[#5A3D42] mt-6 sm:mt-8 max-w-2xl leading-relaxed mx-auto font-sans"
+            >
               {copy.landing.subheadline}
-            </p>
+            </ScrollReveal>
 
-            <div className="hero-anim-cta mt-10 sm:mt-12 flex flex-col items-center gap-4 w-full">
+            <ScrollReveal
+              as="div"
+              trigger="mount"
+              y={20}
+              delay={0.4}
+              className="mt-10 sm:mt-12 flex flex-col items-center gap-4 w-full"
+            >
               <Link
                 href="/register"
                 className="w-full sm:w-auto px-10 py-4 rounded-xl bg-[#2B030A] text-white font-semibold flex items-center justify-center gap-3 hover:bg-[#1C0105] transition-all duration-300 text-base shadow-sm hover:shadow-md"
@@ -195,7 +219,7 @@ const LandingPage = () => {
                 <span className="text-rose-300/60">•</span>
                 <span>Без кредитних карток</span>
               </p>
-            </div>
+            </ScrollReveal>
           </div>
         </section>
 

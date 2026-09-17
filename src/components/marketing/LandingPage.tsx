@@ -36,74 +36,207 @@ const LandingPage = () => {
       <JsonLd
         data={{
           "@context": "https://schema.org",
-          "@type": "WebApplication",
-          name: "BOOKEASY",
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Web",
-          url: "https://bookeasy.com.ua",
-          description:
-            "Застосунок для запису клієнтів та керування графіком. База клієнтів, історія візитів, аналітика, нагадування, онлайн-запис.",
-          offers: {
-            "@type": "AggregateOffer",
-            priceCurrency: "UAH",
-            lowPrice: "0",
-            highPrice: "2250",
-            offerCount: 3,
-            offers: [
-              {
-                "@type": "Offer",
-                name: "Trial",
-                price: "0",
-                priceCurrency: "UAH",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://bookeasy.com.ua/#organization",
+              "name": "BOOKEASY",
+              "legalName": "ФОП Мойсеєнко Андрій Вікторович",
+              "alternateName": [
+                "bookeasy",
+                "Book Easy",
+                "БукІзі"
+              ],
+              "brand": {
+                "@type": "Brand",
+                "name": "BOOKEASY"
               },
-              {
-                "@type": "Offer",
-                name: "Care",
-                price: "225",
-                priceCurrency: "UAH",
-                priceSpecification: {
-                  "@type": "UnitPriceSpecification",
-                  price: "225",
-                  priceCurrency: "UAH",
-                  referenceQuantity: {
-                    "@type": "QuantitativeValue",
-                    value: "1",
-                    unitCode: "MON",
-                  },
+              "url": "https://bookeasy.com.ua/",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://bookeasy.com.ua/bookeasy-logo-512.png",
+              },
+              "description":
+                "Застосунок для запису клієнтів та керування графіком. База клієнтів, історія візитів, аналітика, нагадування, онлайн-запис.",
+              "areaServed": {
+                "@type": "Country",
+                "name": "Ukraine",
+              },
+              "email": "bookeasy.ua@gmail.com",
+              "sameAs": [
+                "https://www.instagram.com/bookeasy.ua",
+                "https://t.me/BookEasyAppBot"
+              ],
+              "contactPoint": [
+                {
+                  "@type": "ContactPoint",
+                  "contactType": "customer support",
+                  "email": "bookeasy.ua@gmail.com",
+                  "availableLanguage": ["uk"],
                 },
-              },
-              {
-                "@type": "Offer",
-                name: "Care",
-                price: "2250",
-                priceCurrency: "UAH",
-                priceSpecification: {
-                  "@type": "UnitPriceSpecification",
-                  price: "2250",
-                  priceCurrency: "UAH",
-                  referenceQuantity: {
-                    "@type": "QuantitativeValue",
-                    value: "1",
-                    unitCode: "ANN",
-                  },
-                },
-              },
-            ],
-          },
-        }}
-      />
-      <JsonLd
-        data={{
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: copy.faq.items.map((item) => ({
-            "@type": "Question",
-            name: item.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: item.answer,
+              ],
             },
-          })),
+            {
+              "@type": "WebSite",
+              "@id": "https://bookeasy.com.ua/#website",
+              "url": "https://bookeasy.com.ua/",
+              "name": "BOOKEASY",
+              "publisher": {
+                "@id": "https://bookeasy.com.ua/#organization",
+              },
+              "inLanguage": "uk-UA",
+            },
+            {
+              "@type": "WebPage",
+              "@id": "https://bookeasy.com.ua/#webpage",
+              "url": "https://bookeasy.com.ua/",
+              "name": "Запис клієнтів та керування графіком — BOOKEASY",
+              "description":
+                "Застосунок для запису клієнтів та керування графіком. База клієнтів, історія візитів, аналітика, нагадування, онлайн-запис.",
+              "isPartOf": {
+                "@id": "https://bookeasy.com.ua/#website",
+              },
+              "about": {
+                "@id": "https://bookeasy.com.ua/#app",
+              },
+              "publisher": {
+                "@id": "https://bookeasy.com.ua/#organization",
+              },
+              "inLanguage": "uk-UA",
+            },
+            {
+              "@type": "WebApplication",
+              "@id": "https://bookeasy.com.ua/#app",
+              "name": "BOOKEASY",
+              "applicationCategory": "BusinessApplication",
+              "applicationSubCategory": "Appointment Scheduling Software",
+              "operatingSystem": "All",
+              "url": "https://bookeasy.com.ua",
+              "description":
+                "Застосунок для запису клієнтів та керування графіком. База клієнтів, історія візитів, аналітика, нагадування, онлайн-запис.",
+              "image": "https://bookeasy.com.ua/og-image.png",
+              "screenshot": [
+                "https://bookeasy.com.ua/day-calendar.png",
+                "https://bookeasy.com.ua/online-section.png",
+                "https://bookeasy.com.ua/booking-details.png",
+                "https://bookeasy.com.ua/client-summary.png",
+                "https://bookeasy.com.ua/master-storefront.png",
+                "https://bookeasy.com.ua/master-schedule.png",
+                "https://bookeasy.com.ua/master-services.png",
+                "https://bookeasy.com.ua/analytics.png",
+                "https://bookeasy.com.ua/master-expenses.png",
+              ],
+              "featureList": [
+                "Онлайн-запис",
+                "Календар і контроль графіка",
+                "База клієнтів та історія візитів",
+                "Нагадування клієнтам",
+                "Облік прибутку",
+                "Статистика заповненості графіка",
+                "Облік доходів і витрат",
+                "Чорний список клієнтів",
+                "Портфоліо робіт",
+                "Посилання для соцмереж",
+              ],
+              "author": {
+                "@id": "https://bookeasy.com.ua/#organization",
+              },
+              "publisher": {
+                "@id": "https://bookeasy.com.ua/#organization",
+              },
+              "inLanguage": "uk-UA",
+              "offers": {
+                "@type": "AggregateOffer",
+                "priceCurrency": "UAH",
+                "lowPrice": "0",
+                "highPrice": "2250",
+                "offerCount": 3,
+                "offers": [
+                  {
+                    "@type": "Offer",
+                    "name": "Trial",
+                    "price": "0",
+                    "priceCurrency": "UAH",
+                  },
+                  {
+                    "@type": "Offer",
+                    "name": "Care",
+                    "price": "225",
+                    "priceCurrency": "UAH",
+                    "priceSpecification": {
+                      "@type": "UnitPriceSpecification",
+                      "price": "225",
+                      "priceCurrency": "UAH",
+                      "referenceQuantity": {
+                        "@type": "QuantitativeValue",
+                        "value": "1",
+                        "unitCode": "MON",
+                      },
+                    },
+                  },
+                  {
+                    "@type": "Offer",
+                    "name": "Care",
+                    "price": "2250",
+                    "priceCurrency": "UAH",
+                    "priceSpecification": {
+                      "@type": "UnitPriceSpecification",
+                      "price": "2250",
+                      "priceCurrency": "UAH",
+                      "referenceQuantity": {
+                        "@type": "QuantitativeValue",
+                        "value": "1",
+                        "unitCode": "ANN",
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            {
+              "@type": "WebPage",
+              "@id": "https://bookeasy.com.ua/terms",
+              "url": "https://bookeasy.com.ua/terms",
+              "name": "Умови використання — BOOKEASY",
+              "description": "Умови використання сервісу BOOKEASY.",
+              "isPartOf": {
+                "@id": "https://bookeasy.com.ua/#website",
+              },
+              "publisher": {
+                "@id": "https://bookeasy.com.ua/#organization",
+              },
+              "inLanguage": "uk-UA",
+            },
+            {
+              "@type": "WebPage",
+              "@id": "https://bookeasy.com.ua/privacy-policy",
+              "url": "https://bookeasy.com.ua/privacy-policy",
+              "name": "Політика конфіденційності — BOOKEASY",
+              "description": "Політика конфіденційності сервісу BOOKEASY.",
+              "isPartOf": {
+                "@id": "https://bookeasy.com.ua/#website",
+              },
+              "publisher": {
+                "@id": "https://bookeasy.com.ua/#organization",
+              },
+              "inLanguage": "uk-UA",
+            },
+            {
+              "@type": "FAQPage",
+              "@id": "https://bookeasy.com.ua/#faq",
+              "isPartOf": {
+                "@id": "https://bookeasy.com.ua/#webpage",
+              },
+              "mainEntity": copy.faq.items.map((item) => ({
+                "@type": "Question",
+                "name": item.question,
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": item.answer,
+                },
+              })),
+            },
+          ],
         }}
       />
       <nav

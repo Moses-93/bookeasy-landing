@@ -59,6 +59,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://bookeasy.com.ua",
   },
+  other: {
+    "geo.region": "UA",
+  },
 };
 
 export default function RootLayout({

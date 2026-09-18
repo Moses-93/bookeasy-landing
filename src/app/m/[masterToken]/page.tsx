@@ -71,9 +71,9 @@ export default async function MasterPage({ params }: PageProps) {
 
   let priceRange: string | undefined = undefined;
   if (services.length > 0) {
-    const prices = services.map((s) => s.price);
-    const min = Math.min(...prices) / 100;
-    const max = Math.max(...prices) / 100;
+    const prices = services.map((s) => Number(s.price));
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
     priceRange = min === max ? `${min} UAH` : `${min} - ${max} UAH`;
   }
   const currentUrl = `https://bookeasy.com.ua/m/${masterToken}`;
@@ -120,7 +120,7 @@ export default async function MasterPage({ params }: PageProps) {
                   name: service.title,
                   ...(service.description ? { description: service.description } : {}),
                 },
-                price: (service.price / 100).toFixed(2),
+                price: service.price,
                 priceCurrency: "UAH",
                 availability: "https://schema.org/InStock",
               },

@@ -80,7 +80,7 @@ export const ServiceDetailModal: React.FC<ServiceDetailModalProps> = ({
                     {getDurationMinutes(service.duration)} хв
                   </span>
                   <span className="inline-flex items-center rounded-full bg-zinc-950 px-3.5 py-1.5 text-xs font-semibold tabular-nums text-white">
-                    {formatPrice(service.price)}
+                    {formatPrice(service.price, service.currency)}
                   </span>
                 </div>
               </div>

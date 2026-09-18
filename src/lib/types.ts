@@ -5,6 +5,22 @@ const PHONE_E164_REGEX = /^\+380\d{9}$/;
 const TELEGRAM_HANDLE_REGEX = /^[a-zA-Z0-9_]{5,32}$/;
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9._]{1,30}$/;
 
+export const CurrencySchema = z.enum(["UAH", "USD", "EUR", "PLN"]);
+export type Currency = z.infer<typeof CurrencySchema>;
+
+export interface CurrencyInfo {
+  code: Currency;
+  symbol: string;
+  flag: string;
+  label: string;
+}
+
+export const CURRENCY_METADATA: Record<Currency, CurrencyInfo> = {
+  UAH: { code: "UAH", symbol: "₴", flag: "🇺🇦", label: "Гривня" },
+  USD: { code: "USD", symbol: "$", flag: "🇺🇸", label: "Долар США" },
+  EUR: { code: "EUR", symbol: "€", flag: "🇪🇺", label: "Євро" },
+  PLN: { code: "PLN", symbol: "zł", flag: "🇵🇱", label: "Злотий" },
+};
 
 export interface IContact {
   address: string | null;
@@ -41,7 +57,8 @@ export interface IService {
   master_id: number;
   title: string;
   description: string | null;
-  price: number;
+  price: string;
+  currency: Currency; 
   duration: string;
   is_active: boolean;
 }

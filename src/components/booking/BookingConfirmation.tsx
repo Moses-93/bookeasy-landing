@@ -111,7 +111,7 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
               </p>
               <h4 className="mt-1 text-sm font-semibold text-slate-900">{service.title}</h4>
               <p className="mt-1 text-xs text-slate-500">
-                {formatDuration(service.duration)} • {formatPrice(service.price)}
+                {formatDuration(service.duration)} • {formatPrice(service.price, service.currency)}
               </p>
             </div>
           </div>

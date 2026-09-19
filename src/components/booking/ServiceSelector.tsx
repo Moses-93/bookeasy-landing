@@ -107,7 +107,7 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
                     isSelected ? "text-zinc-950" : "text-stone-800"
                   }`}
                 >
-                  {formatPrice(service.price)}
+                  {formatPrice(service.price, service.currency)}
                 </span>
               </div>
             </div>

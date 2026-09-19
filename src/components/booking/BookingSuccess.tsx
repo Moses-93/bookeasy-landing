@@ -61,7 +61,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({ onClose, booking }) => 
           <div className="py-2.5 sm:py-3">
             <p className="text-xs uppercase tracking-[0.22em] text-zinc-500">Вартість</p>
             <p className="mt-1 text-sm font-normal text-zinc-900 sm:text-base">
-              {formatPrice(booking.service.price)}
+              {formatPrice(booking.service.price, booking.service.currency)}
             </p>
           </div>
 

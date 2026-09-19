@@ -1,20 +1,20 @@
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
-import type { IBookingStatus } from "@/lib/types";
+import type { IBookingStatus, Currency } from "@/lib/types";
+import { CURRENCY_METADATA } from "@/lib/types";
 
-/**
- * Format price in kopecks to human-readable UAH string.
- *
- * @example formatPrice(22500) → "225 ₴"
- */
-export const formatPrice = (kopecks: number): string => {
-  const uah = kopecks / 100;
+export const formatPrice = (value: string, currency: Currency = "UAH"): string => {
+  const num = typeof value === "number" ? value : Number(value);
+  const symbol = CURRENCY_METADATA[currency]?.symbol ?? "₴";
+
   const amount = new Intl.NumberFormat("uk-UA", {
-    minimumFractionDigits: Number.isInteger(uah) ? 0 : 2,
+    minimumFractionDigits: Number.isInteger(num) ? 0 : 2,
     maximumFractionDigits: 2,
-  }).format(uah);
-  return `${amount} ₴`;
+  }).format(Number.isFinite(num) ? num : 0);
+
+  return `${amount} ${symbol}`;
 };
+
 
 /**
  * Parse ISO 8601 duration to total minutes.

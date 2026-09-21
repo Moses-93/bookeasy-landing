@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { MapPin, Phone, Send, X, ChevronLeft, ChevronRight } from "lucide-react";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import type { IPublicMasterProfile, IPhoto } from "@/lib/types";
+import { type IPublicMasterProfile, type IPhoto, phoneNumberSchema } from "@/lib/types";
 
 export const MasterHero: React.FC<{ info: IPublicMasterProfile }> = ({ info }) => {
   const { name, contact, avatar_url, cover_url } = info;
@@ -25,11 +25,10 @@ export const MasterHero: React.FC<{ info: IPublicMasterProfile }> = ({ info }) =
     });
   }
   if (contact.phone_number) {
-    const digits = contact.phone_number.replace(/\D/g, "");
-    const tel = digits.startsWith("380")
-      ? `tel:+${digits}`
-      : `tel:${contact.phone_number.replace(/\s+/g, "")}`;
-    socials.push({ icon: Phone, href: tel, label: "Phone" });
+    const parsedPhone = phoneNumberSchema.safeParse(contact.phone_number);
+    if (parsedPhone.success) {
+      socials.push({ icon: Phone, href: `tel:${parsedPhone.data}`, label: "Phone" });
+    }
   }
   if (contact.google_maps_link) {
     socials.push({

@@ -73,6 +73,55 @@
                 }
             }
         },
+        "/api/v1/masters/{master_id}/customization": {
+            "get": {
+                "tags": [
+                    "public:masters"
+                ],
+                "summary": "Get master customization",
+                "description": "Retrieves booking form customization settings for the master.",
+                "operationId": "get_master_customization_api_v1_masters__master_id__customization_get",
+                "parameters": [
+                    {
+                        "name": "master_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Master ID",
+                            "title": "Master Id"
+                        },
+                        "description": "Master ID"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MasterCustomizationSchema"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error: Unexpected system failure"
+                    }
+                }
+            }
+        },
         "/api/v1/services": {
             "get": {
                 "tags": [
@@ -1147,6 +1196,75 @@
                 ],
                 "title": "BookingStatus",
                 "description": "Represents the status of a booking."
+            },
+            "FieldType": {
+                "type": "string",
+                "enum": [
+                    "instagram",
+                    "telegram",
+                    "comment"
+                ],
+                "title": "FieldType",
+                "description": "Enumeration of available booking form field types."
+            },
+            "FormFieldSchema": {
+                "properties": {
+                    "type": {
+                        "$ref": "#/components/schemas/FieldType",
+                        "description": "Field type category"
+                    },
+                    "isVisible": {
+                        "type": "boolean",
+                        "title": "Isvisible",
+                        "description": "Whether field is visible on booking form"
+                    },
+                    "isRequired": {
+                        "type": "boolean",
+                        "title": "Isrequired",
+                        "description": "Whether field is mandatory to fill"
+                    },
+                    "position": {
+                        "type": "integer",
+                        "title": "Position",
+                        "description": "Order position in form"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "type",
+                    "isVisible",
+                    "isRequired",
+                    "position"
+                ],
+                "title": "FormFieldSchema",
+                "description": "Schema representing an individual booking form field setting."
+            },
+            "MasterCustomizationSchema": {
+                "properties": {
+                    "customizationId": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Customizationid",
+                        "description": "Unique customization ID"
+                    },
+                    "formFields": {
+                        "items": {
+                            "$ref": "#/components/schemas/FormFieldSchema"
+                        },
+                        "type": "array",
+                        "title": "Formfields",
+                        "description": "Configured form fields list"
+                    }
+                },
+                "type": "object",
+                "title": "MasterCustomizationSchema",
+                "description": "Schema representing master booking form customization configuration."
             }
         }
     }

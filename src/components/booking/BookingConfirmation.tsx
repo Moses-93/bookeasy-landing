@@ -15,6 +15,7 @@ import {
   type IBookableTimeSlot,
   type IService,
   type ICreateBooking,
+  type IMasterCustomization,
   createBookingSchema,
 } from "@/lib/types";
 import useDetectKeyboardOpen from "use-detect-keyboard-open";
@@ -28,6 +29,7 @@ interface BookingConfirmationProps {
   onConfirm: (booking: ICreateBooking) => void;
   isSubmitting?: boolean;
   showContactForm?: boolean;
+  customization?: IMasterCustomization | null;
 }
 
 const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
@@ -38,15 +40,21 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   onConfirm,
   isSubmitting = false,
   showContactForm = false,
+  customization,
 }) => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isFormValid, setIsFormValid] = useState(!showContactForm);
+
+  const bookingSchema = React.useMemo(
+    () => createBookingSchema(customization?.formFields),
+    [customization?.formFields],
+  );
 
   const handleFormInput = (e: React.SyntheticEvent<HTMLFormElement>) => {
     if (!showContactForm) return;
 
     const formData = new FormData(e.currentTarget);
-    const result = createBookingSchema.safeParse({
+    const result = bookingSchema.safeParse({
       ...Object.fromEntries(formData),
       master_id: masterId,
       service_id: service.id,
@@ -77,7 +85,7 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
     setValidationError(null);
 
     const formData = new FormData(e.currentTarget);
-    const validationResult = createBookingSchema.safeParse({
+    const validationResult = bookingSchema.safeParse({
       ...Object.fromEntries(formData),
       master_id: masterId,
       service_id: service.id,
@@ -143,7 +151,12 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
         </div>
       ) : null}
 
-      {showContactForm ? <ClientFormFields disabled={isSubmitting} /> : null}
+      {showContactForm ? (
+        <ClientFormFields
+          formFields={customization?.formFields}
+          disabled={isSubmitting}
+        />
+      ) : null}
 
       <div className="text-center text-xs text-slate-400 mt-2 pb-4">
         <Link href="/terms" className="hover:text-slate-600 transition-colors">

@@ -2,10 +2,15 @@
 
 import React, { useState } from "react";
 import { AsYouType } from "libphonenumber-js";
-import { getCountryFlagEmoji } from "@/lib/types";
+import {
+  type IFormField,
+  DEFAULT_FORM_FIELDS,
+  getCountryFlagEmoji,
+} from "@/lib/types";
 
 interface IClientFormFieldsProps {
   disabled?: boolean;
+  formFields?: IFormField[] | null;
 }
 
 /**
@@ -13,10 +18,12 @@ interface IClientFormFieldsProps {
  *
  * @param props - Component properties.
  * @param props.disabled - Whether the form fields are disabled.
- * @returns JSX fieldset element containing name, phone, instagram, and telegram inputs.
+ * @param props.formFields - List of master form field settings.
+ * @returns Form fieldset element.
  */
 export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
   disabled = false,
+  formFields,
 }) => {
   const [phone, setPhone] = useState("");
 
@@ -26,12 +33,16 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
   }
   const flag = asYouType ? getCountryFlagEmoji(asYouType.getCountry()) : "";
 
+  const customFields = (formFields ?? DEFAULT_FORM_FIELDS).filter(
+    (field) => field.isVisible,
+  );
+
   return (
     <fieldset
       disabled={disabled}
       className="bg-white rounded-2xl border-[0.5px] border-slate-200/50 overflow-hidden flex flex-col disabled:opacity-75 transition-opacity"
     >
-      {/* Name Field */}
+      {/* Core Field: Name */}
       <div className="flex flex-col px-4 py-2.5 border-b border-slate-100 focus-within:bg-slate-50/50 transition-colors">
         <label
           htmlFor="client_name_input"
@@ -51,8 +62,12 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
         />
       </div>
 
-      {/* Phone Field */}
-      <div className="flex flex-col px-4 py-2.5 border-b border-slate-100 focus-within:bg-slate-50/50 transition-colors">
+      {/* Core Field: Phone */}
+      <div
+        className={`flex flex-col px-4 py-2.5 ${
+          customFields.length > 0 ? "border-b border-slate-100" : ""
+        } focus-within:bg-slate-50/50 transition-colors`}
+      >
         <label
           htmlFor="phone_number_input"
           className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5 cursor-pointer"
@@ -88,55 +103,84 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
         </div>
       </div>
 
-      {/* Instagram Field */}
-      <div className="flex flex-col px-4 py-2.5 border-b border-slate-100 focus-within:bg-slate-50/50 transition-colors">
-        <label
-          htmlFor="instagram_username_input"
-          className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5 cursor-pointer"
-        >
-          Instagram
-        </label>
-        <div className="w-full bg-transparent flex items-center">
-          <span aria-hidden="true" className="mr-1 shrink-0 text-sm text-slate-400 select-none">
-            @
-          </span>
-          <input
-            id="instagram_username_input"
-            type="text"
-            name="instagram_username"
-            autoComplete="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            placeholder="username"
-            className="w-full border-none bg-transparent p-0 text-sm text-slate-900 outline-none placeholder-slate-400 focus:ring-0"
-          />
-        </div>
-      </div>
+      {/* Dynamic Custom Fields */}
+      {customFields.map((field, index) => {
+        const isLast = index === customFields.length - 1;
+        const borderClass = isLast ? "" : "border-b border-slate-100";
 
-      {/* Telegram Field */}
-      <div className="flex flex-col px-4 py-2.5 focus-within:bg-slate-50/50 transition-colors">
-        <label
-          htmlFor="telegram_username_input"
-          className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5 cursor-pointer"
-        >
-          Telegram
-        </label>
-        <div className="w-full bg-transparent flex items-center">
-          <span aria-hidden="true" className="mr-1 shrink-0 text-sm text-slate-400 select-none">
-            @
-          </span>
-          <input
-            id="telegram_username_input"
-            type="text"
-            name="telegram_username"
-            autoComplete="off"
-            autoCapitalize="none"
-            spellCheck={false}
-            placeholder="username"
-            className="w-full border-none bg-transparent p-0 text-sm text-slate-900 outline-none placeholder-slate-400 focus:ring-0"
-          />
-        </div>
-      </div>
+        if (field.type === "instagram") {
+          return (
+            <div
+              key="instagram"
+              className={`flex flex-col px-4 py-2.5 ${borderClass} focus-within:bg-slate-50/50 transition-colors`}
+            >
+              <label
+                htmlFor="instagram_username_input"
+                className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5 cursor-pointer"
+              >
+                Instagram {field.isRequired ? <span className="text-red-500">*</span> : null}
+              </label>
+              <div className="w-full bg-transparent flex items-center">
+                <span
+                  aria-hidden="true"
+                  className="mr-1 shrink-0 text-sm text-slate-400 select-none"
+                >
+                  @
+                </span>
+                <input
+                  id="instagram_username_input"
+                  type="text"
+                  name="instagram_username"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  placeholder="username"
+                  required={field.isRequired}
+                  className="w-full border-none bg-transparent p-0 text-sm text-slate-900 outline-none placeholder-slate-400 focus:ring-0"
+                />
+              </div>
+            </div>
+          );
+        }
+
+        if (field.type === "telegram") {
+          return (
+            <div
+              key="telegram"
+              className={`flex flex-col px-4 py-2.5 ${borderClass} focus-within:bg-slate-50/50 transition-colors`}
+            >
+              <label
+                htmlFor="telegram_username_input"
+                className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5 cursor-pointer"
+              >
+                Telegram {field.isRequired ? <span className="text-red-500">*</span> : null}
+              </label>
+              <div className="w-full bg-transparent flex items-center">
+                <span
+                  aria-hidden="true"
+                  className="mr-1 shrink-0 text-sm text-slate-400 select-none"
+                >
+                  @
+                </span>
+                <input
+                  id="telegram_username_input"
+                  type="text"
+                  name="telegram_username"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  placeholder="username"
+                  required={field.isRequired}
+                  className="w-full border-none bg-transparent p-0 text-sm text-slate-900 outline-none placeholder-slate-400 focus:ring-0"
+                />
+              </div>
+            </div>
+          );
+        }
+
+        return null;
+      })}
     </fieldset>
   );
 };
+

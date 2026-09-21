@@ -90,7 +90,7 @@ export interface IService {
   title: string;
   description: string | null;
   price: string;
-  currency: Currency; 
+  currency: Currency;
   duration: string;
   is_active: boolean;
 }
@@ -127,54 +127,118 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
-export const createBookingSchema = z.object({
-  master_id: z.number().int().positive(),
-  service_id: z.number().int().positive(),
-  time_slot_ids: z
-    .array(z.number().int().positive())
-    .min(1, "Оберіть часовий слот"),
-  name: z
-    .string()
-    .trim()
-    .min(2, "Ім'я повинно містити щонайменше 2 символи")
-    .max(100, "Ім'я не може перевищувати 100 символів"),
-  phone_number: phoneNumberSchema,
-  instagram_username: z
-    .string()
-    .optional()
-    .nullable()
-    .transform((v) => {
-      if (!v) return null;
-      const s = v.trim().replace(/^@+/, "");
-      return s.length > 0 ? s : null;
-    })
-    .pipe(
-      z
-        .string()
-        .regex(
-          INSTAGRAM_HANDLE_REGEX,
-          "Instagram нікнейм повинен містити від 1 до 30 символів",
-        )
-        .nullable(),
-    ),
-  telegram_username: z
-    .string()
-    .optional()
-    .nullable()
-    .transform((v) => {
-      if (!v) return null;
-      const s = v.trim().replace(/^@+/, "");
-      return s.length > 0 ? s : null;
-    })
-    .pipe(
-      z
-        .string()
-        .regex(
-          TELEGRAM_HANDLE_REGEX,
-          "Telegram нікнейм повинен містити від 5 до 32 символів",
-        )
-        .nullable(),
-    ),
-});
+export type FieldType = "instagram" | "telegram" | "comment";
 
-export type ICreateBooking = z.infer<typeof createBookingSchema>;
+export interface IFormField {
+  type: FieldType;
+  isVisible: boolean;
+  isRequired: boolean;
+  position: number;
+}
+
+export interface IMasterCustomization {
+  customizationId: number | null;
+  formFields: IFormField[];
+}
+
+export const DEFAULT_FORM_FIELDS: IFormField[] = [
+  { type: "instagram", isVisible: true, isRequired: false, position: 1 },
+  { type: "telegram", isVisible: true, isRequired: false, position: 2 },
+  { type: "comment", isVisible: false, isRequired: false, position: 3 },
+];
+
+/**
+ * Create a booking validation schema with field constraints applied from master settings.
+ *
+ * @param formFields - Form field configuration settings.
+ * @returns Booking creation validation schema.
+ */
+export const createBookingSchema = (formFields?: IFormField[] | null) => {
+  const fields = formFields ?? DEFAULT_FORM_FIELDS;
+  const instagramField = fields.find((f) => f.type === "instagram");
+  const telegramField = fields.find((f) => f.type === "telegram");
+
+  const isInstagramRequired = Boolean(instagramField?.isVisible && instagramField?.isRequired);
+  const isTelegramRequired = Boolean(telegramField?.isVisible && telegramField?.isRequired);
+
+  return z.object({
+    master_id: z.number().int().positive(),
+    service_id: z.number().int().positive(),
+    time_slot_ids: z
+      .array(z.number().int().positive())
+      .min(1, "Оберіть часовий слот"),
+    name: z
+      .string()
+      .trim()
+      .min(2, "Ім'я повинно містити щонайменше 2 символи")
+      .max(100, "Ім'я не може перевищувати 100 символів"),
+    phone_number: phoneNumberSchema,
+    instagram_username: isInstagramRequired
+      ? z
+          .string({ error: "Вкажіть Instagram нікнейм" })
+          .trim()
+          .min(1, "Вкажіть Instagram нікнейм")
+          .transform((v) => v.replace(/^@+/, ""))
+          .pipe(
+            z
+              .string()
+              .regex(
+                INSTAGRAM_HANDLE_REGEX,
+                "Instagram нікнейм повинен містити від 1 до 30 символів",
+              ),
+          )
+      : z
+          .string()
+          .optional()
+          .nullable()
+          .transform((v) => {
+            if (!v) return null;
+            const s = v.trim().replace(/^@+/, "");
+            return s.length > 0 ? s : null;
+          })
+          .pipe(
+            z
+              .string()
+              .regex(
+                INSTAGRAM_HANDLE_REGEX,
+                "Instagram нікнейм повинен містити від 1 до 30 символів",
+              )
+              .nullable(),
+          ),
+    telegram_username: isTelegramRequired
+      ? z
+          .string({ error: "Вкажіть Telegram нікнейм" })
+          .trim()
+          .min(1, "Вкажіть Telegram нікнейм")
+          .transform((v) => v.replace(/^@+/, ""))
+          .pipe(
+            z
+              .string()
+              .min(5, "Telegram нікнейм повинен містити від 5 до 32 символів")
+              .regex(
+                TELEGRAM_HANDLE_REGEX,
+                "Telegram нікнейм повинен містити від 5 до 32 символів",
+              ),
+          )
+      : z
+          .string()
+          .optional()
+          .nullable()
+          .transform((v) => {
+            if (!v) return null;
+            const s = v.trim().replace(/^@+/, "");
+            return s.length > 0 ? s : null;
+          })
+          .pipe(
+            z
+              .string()
+              .regex(
+                TELEGRAM_HANDLE_REGEX,
+                "Telegram нікнейм повинен містити від 5 до 32 символів",
+              )
+              .nullable(),
+          ),
+  });
+};
+
+export type ICreateBooking = z.infer<ReturnType<typeof createBookingSchema>>;

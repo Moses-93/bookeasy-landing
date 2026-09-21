@@ -10,6 +10,7 @@ import type {
   IPublicMasterProfile,
   IService,
   IBookableTimeSlot,
+  IMasterCustomization,
 } from "@/lib/types";
 import { useBookingFlow } from "@/hooks/useBookingFlow";
 import {
@@ -33,6 +34,7 @@ interface BookingFlowProps {
   showContactForm?: boolean;
   services: IService[];
   availableDates: string[];
+  customization?: IMasterCustomization | null;
 }
 
 const BookingFlow: React.FC<BookingFlowProps> = ({
@@ -42,6 +44,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
   showContactForm = false,
   services,
   availableDates,
+  customization,
 }) => {
   const [isStorefront, setIsStorefront] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -286,6 +289,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
                 onConfirm={handleConfirm}
                 isSubmitting={isSubmitting}
                 showContactForm={showContactForm}
+                customization={customization}
               />
             )
           ) : null}

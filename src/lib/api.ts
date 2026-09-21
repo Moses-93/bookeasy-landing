@@ -4,6 +4,7 @@ import type {
   IBookableTimeSlot,
   IBooking,
   ICreateBooking,
+  IMasterCustomization,
   PaginatedResponse,
 } from "./types";
 
@@ -189,6 +190,20 @@ export async function fetchBookableTimeSlots(
 ): Promise<IBookableTimeSlot[]> {
   return apiFetch<IBookableTimeSlot[]>(
     `/api/v1/time-slots/bookable?master_id=${masterId}&duration=${encodeURIComponent(duration)}&on_date=${date}`,
+  );
+}
+
+/**
+ * Fetch master customization settings.
+ *
+ * @param masterId - Master identifier.
+ * @returns Master customization settings.
+ */
+export async function fetchMasterCustomization(
+  masterId: number,
+): Promise<IMasterCustomization> {
+  return apiFetch<IMasterCustomization>(
+    `/api/v1/masters/${masterId}/customization`,
   );
 }
 

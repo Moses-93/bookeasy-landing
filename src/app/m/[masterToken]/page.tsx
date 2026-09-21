@@ -5,6 +5,7 @@ import {
   fetchPublicMasterProfile,
   fetchServices,
   fetchAvailableDates,
+  fetchMasterCustomization,
 } from "@/lib/api";
 import type { IPublicMasterProfile, IService } from "@/lib/types";
 
@@ -64,9 +65,10 @@ export default async function MasterPage({ params }: PageProps) {
     notFound();
   }
 
-  const [services, availableDates] = await Promise.all([
+  const [services, availableDates, customization] = await Promise.all([
     fetchServices(profile.master_id).catch(() => [] as IService[]),
     fetchAvailableDates(profile.master_id).catch(() => [] as string[]),
+    fetchMasterCustomization(profile.master_id).catch(() => null),
   ]);
 
   let priceRange: string | undefined = undefined;
@@ -142,6 +144,7 @@ export default async function MasterPage({ params }: PageProps) {
         services={services}
         availableDates={availableDates}
         showContactForm={true}
+        customization={customization}
       />
     </>
   );

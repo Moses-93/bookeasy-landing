@@ -1,7 +1,7 @@
 import z from "zod";
+import { isValidPhoneNumber, parsePhoneNumberFromString } from "libphonenumber-js";
 
 
-const PHONE_E164_REGEX = /^\+380\d{9}$/;
 const TELEGRAM_HANDLE_REGEX = /^[a-zA-Z0-9_]{5,32}$/;
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9._]{1,30}$/;
 
@@ -21,6 +21,38 @@ export const CURRENCY_METADATA: Record<Currency, CurrencyInfo> = {
   EUR: { code: "EUR", symbol: "€", flag: "🇪🇺", label: "Євро" },
   PLN: { code: "PLN", symbol: "zł", flag: "🇵🇱", label: "Злотий" },
 };
+
+
+/**
+ * Convert an ISO 3166-1 alpha-2 country code to a Unicode flag emoji.
+ *
+ * @param countryCode - Two-letter country code (e.g., 'UA', 'PL').
+ * @returns Unicode flag emoji string or empty string.
+ */
+export const getCountryFlagEmoji = (countryCode?: string | null): string => {
+  if (!countryCode || countryCode.length !== 2) return "";
+  const codePoints = countryCode
+    .toUpperCase()
+    .split("")
+    .map((char) => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
+
+/**
+ * Zod schema for international phone number validation and normalization.
+ *
+ * Validates the input using libphonenumber-js and transforms it to E.164 format.
+ */
+export const phoneNumberSchema = z
+  .string()
+  .transform((val) => {
+    const cleaned = val.replace(/\s+/g, "");
+    return cleaned.startsWith("+") ? cleaned : `+${cleaned}`;
+  })
+  .refine((val) => isValidPhoneNumber(val), {
+    message: "Невірний номер телефону",
+  })
+  .transform((val) => parsePhoneNumberFromString(val)!.format("E.164"));
 
 export interface IContact {
   address: string | null;
@@ -106,20 +138,7 @@ export const createBookingSchema = z.object({
     .trim()
     .min(2, "Ім'я повинно містити щонайменше 2 символи")
     .max(100, "Ім'я не може перевищувати 100 символів"),
-  phone_number: z
-    .string()
-    .transform((v) => {
-      const clean = v.replace(/[\s\-()]/g, "");
-      if (clean.startsWith("+380")) return clean;
-      if (clean.startsWith("380")) return `+${clean}`;
-      if (clean.startsWith("0")) return `+38${clean}`;
-      return clean;
-    })
-    .pipe(
-      z
-        .string()
-        .regex(PHONE_E164_REGEX, "Номер телефону має бути у форматі +380XXXXXXXXX"),
-    ),
+  phone_number: phoneNumberSchema,
   instagram_username: z
     .string()
     .optional()

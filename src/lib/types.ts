@@ -157,9 +157,11 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
   const fields = formFields ?? DEFAULT_FORM_FIELDS;
   const instagramField = fields.find((f) => f.type === "instagram");
   const telegramField = fields.find((f) => f.type === "telegram");
+  const commentField = fields.find((f) => f.type === "comment");
 
   const isInstagramRequired = Boolean(instagramField?.isVisible && instagramField?.isRequired);
   const isTelegramRequired = Boolean(telegramField?.isVisible && telegramField?.isRequired);
+  const isCommentRequired = Boolean(commentField?.isVisible && commentField?.isRequired);
 
   return z.object({
     master_id: z.number().int().positive(),
@@ -238,6 +240,17 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
               )
               .nullable(),
           ),
+    comment: isCommentRequired
+      ? z.string({ error: "Додайте коментар" }).trim().min(1, "Додайте коментар")
+      : z
+          .string()
+          .optional()
+          .nullable()
+          .transform((v) => {
+            if (!v) return null;
+            const s = v.trim();
+            return s.length > 0 ? s : null;
+          }),
   });
 };
 

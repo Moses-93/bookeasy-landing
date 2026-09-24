@@ -127,7 +127,7 @@ export interface PaginatedResponse<T> {
   total: number;
 }
 
-export type FieldType = "instagram" | "telegram" | "comment";
+export type FieldType = "instagram" | "telegram" | "comment" | "last_name";
 
 export interface IFormField {
   type: FieldType;
@@ -142,6 +142,7 @@ export interface IMasterCustomization {
 }
 
 export const DEFAULT_FORM_FIELDS: IFormField[] = [
+  { type: "last_name", isVisible: true, isRequired: false, position: 0 },
   { type: "instagram", isVisible: true, isRequired: false, position: 1 },
   { type: "telegram", isVisible: true, isRequired: false, position: 2 },
   { type: "comment", isVisible: false, isRequired: false, position: 3 },
@@ -155,10 +156,12 @@ export const DEFAULT_FORM_FIELDS: IFormField[] = [
  */
 export const createBookingSchema = (formFields?: IFormField[] | null) => {
   const fields = formFields ?? DEFAULT_FORM_FIELDS;
+  const lastNameField = fields.find((f) => f.type === "last_name");
   const instagramField = fields.find((f) => f.type === "instagram");
   const telegramField = fields.find((f) => f.type === "telegram");
   const commentField = fields.find((f) => f.type === "comment");
 
+  const isLastNameRequired = Boolean(lastNameField?.isVisible && lastNameField?.isRequired);
   const isInstagramRequired = Boolean(instagramField?.isVisible && instagramField?.isRequired);
   const isTelegramRequired = Boolean(telegramField?.isVisible && telegramField?.isRequired);
   const isCommentRequired = Boolean(commentField?.isVisible && commentField?.isRequired);
@@ -169,11 +172,33 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
     time_slot_ids: z
       .array(z.number().int().positive())
       .min(1, "Оберіть часовий слот"),
-    name: z
+    first_name: z
       .string()
       .trim()
       .min(2, "Ім'я повинно містити щонайменше 2 символи")
       .max(100, "Ім'я не може перевищувати 100 символів"),
+    last_name: isLastNameRequired
+      ? z
+          .string({ error: "Вкажіть прізвище" })
+          .trim()
+          .min(2, "Прізвище повинно містити щонайменше 2 символи")
+          .max(100, "Прізвище не може перевищувати 100 символів")
+      : z
+          .string()
+          .optional()
+          .nullable()
+          .transform((v) => {
+            if (!v) return null;
+            const s = v.trim();
+            return s.length > 0 ? s : null;
+          })
+          .pipe(
+            z
+              .string()
+              .min(2, "Прізвище повинно містити щонайменше 2 символи")
+              .max(100, "Прізвище не може перевищувати 100 символів")
+              .nullable(),
+          ),
     phone_number: phoneNumberSchema,
     instagram_username: isInstagramRequired
       ? z

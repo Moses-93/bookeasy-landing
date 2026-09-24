@@ -36,7 +36,10 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
   const allFields = (formFields ?? DEFAULT_FORM_FIELDS).filter(
     (field) => field.isVisible,
   );
-  const customFields = allFields.filter((field) => field.type !== "comment");
+  const lastNameField = allFields.find((field) => field.type === "last_name");
+  const customFields = allFields.filter(
+    (field) => field.type !== "comment" && field.type !== "last_name",
+  );
   const commentField = allFields.find((field) => field.type === "comment");
 
   return (
@@ -45,25 +48,47 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
         disabled={disabled}
         className="bg-white rounded-2xl border-[0.5px] border-slate-200/50 overflow-hidden flex flex-col disabled:opacity-75 transition-opacity"
       >
-        {/* Core Field: Name */}
+        {/* Core Field: First Name */}
         <div className="flex flex-col px-4 py-2.5 border-b border-slate-100 focus-within:bg-slate-50/50 transition-colors">
           <label
-            htmlFor="client_name_input"
+            htmlFor="client_first_name_input"
             className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 cursor-pointer"
           >
-            Ваше ім&apos;я та прізвище <span className="text-red-500">*</span>
+            Ім&apos;я <span className="text-red-500">*</span>
           </label>
           <input
-            id="client_name_input"
+            id="client_first_name_input"
             type="text"
-            name="name"
-            autoComplete="name"
+            name="first_name"
+            autoComplete="given-name"
             autoCapitalize="words"
             required
-            placeholder="Ім'я та прізвище"
+            placeholder="Ваше ім'я"
             className="w-full bg-transparent text-slate-900 text-sm placeholder-slate-400 outline-none"
           />
         </div>
+
+        {/* Dynamic Field: Last Name */}
+        {lastNameField && (
+          <div className="flex flex-col px-4 py-2.5 border-b border-slate-100 focus-within:bg-slate-50/50 transition-colors">
+            <label
+              htmlFor="client_last_name_input"
+              className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5 cursor-pointer"
+            >
+              Прізвище {lastNameField.isRequired ? <span className="text-red-500">*</span> : null}
+            </label>
+            <input
+              id="client_last_name_input"
+              type="text"
+              name="last_name"
+              autoComplete="family-name"
+              autoCapitalize="words"
+              placeholder="Ваше прізвище"
+              required={lastNameField.isRequired}
+              className="w-full bg-transparent text-slate-900 text-sm placeholder-slate-400 outline-none"
+            />
+          </div>
+        )}
 
         {/* Core Field: Phone */}
         <div

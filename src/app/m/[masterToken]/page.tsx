@@ -21,19 +21,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       profile.contact.about ||
       `Онлайн-запис на послуги до майстра ${profile.name}. Оберіть зручний час та забронюйте візит онлайн.`;
 
-    const imageUrl = profile.avatar_url || profile.cover_url || "/og-image.png";
+    const pageUrl = `https://bookeasy.com.ua/m/${masterToken}`;
+    const imageUrl = profile.avatar_url || profile.cover_url || "https://bookeasy.com.ua/og-image.png";
 
     return {
       title: `Онлайн-запис — ${profile.name}`,
       description,
       alternates: {
-        canonical: `/m/${masterToken}`,
+        canonical: pageUrl,
       },
       openGraph: {
         title: `Онлайн-запис — ${profile.name}`,
         description,
         type: "profile",
-        url: `https://bookeasy.com.ua/m/${masterToken}`,
+        url: pageUrl,
         images: [{ url: imageUrl }],
       },
       twitter: {

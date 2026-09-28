@@ -2,13 +2,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type {
   IBooking,
+  IBookingHistory,
   IService,
   IBookableTimeSlot,
   ICreateBooking,
 } from "@/lib/types";
 
 interface UseBookingFlowOptions {
-  onComplete: ((data: ICreateBooking) => Promise<IBooking>) | ((data: ICreateBooking) => IBooking);
+  onComplete:
+    | ((data: ICreateBooking) => Promise<IBookingHistory | IBooking>)
+    | ((data: ICreateBooking) => IBookingHistory | IBooking);
   maxSteps?: number;
   initialDate?: Date | null;
 }
@@ -26,7 +29,7 @@ export interface UseBookingFlowReturn {
   setSelectedSlot: (slot: IBookableTimeSlot | null) => void;
   handleNext: () => void;
   handleBack: () => void;
-  handleBook: (booking: ICreateBooking) => Promise<IBooking>;
+  handleBook: (booking: ICreateBooking) => Promise<IBookingHistory | IBooking>;
   resetFlow: () => void;
 }
 

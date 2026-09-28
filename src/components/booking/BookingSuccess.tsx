@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
+import { TZDate } from "@date-fns/tz";
 import {
   Send,
   MapPin,
@@ -11,18 +12,16 @@ import {
 } from "lucide-react";
 import InstagramIcon from "@mui/icons-material/Instagram";
 
-import type { IBooking, IPublicMasterProfile } from "@/lib/types";
+import type { IPublicBooking } from "@/lib/types";
 import { phoneNumberSchema } from "@/lib/types";
 import {
-  formatDuration,
   formatPrice,
-  formatTime,
 } from "@/lib/formatters";
 import BookingStatusBadge from "./BookingStatusBadge";
 
 interface BookingSuccessProps {
-  booking: IBooking;
-  masterInfo?: IPublicMasterProfile;
+  booking: IPublicBooking;
+  showSuccessBadge?: boolean;
 }
 
 /**
@@ -33,10 +32,13 @@ interface BookingSuccessProps {
  */
 const BookingSuccess: React.FC<BookingSuccessProps> = ({
   booking,
-  masterInfo,
+  showSuccessBadge = false,
 }) => {
-  const startsAt = new Date(booking.time_slot.start);
-  const endsAt = new Date(booking.time_slot.end);
+  const startsAt = new TZDate(booking.startTime, booking.timezone);
+  const endsAt = new TZDate(booking.endTime, booking.timezone);
+  const durationMinutes = Math.round(
+    (endsAt.getTime() - startsAt.getTime()) / 60000,
+  );
 
   const baseBotUrl = process.env.NEXT_PUBLIC_TELEGRAM_BOT_URL;
 
@@ -46,7 +48,7 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
       : `${baseBotUrl}?start=start`
     : undefined;
 
-  const contact = masterInfo?.contact;
+  const contact = booking.masterContact;
 
   const directContacts = React.useMemo(() => {
     if (!contact) return [];
@@ -92,76 +94,74 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <BookingStatusBadge />
+      {showSuccessBadge ? <BookingStatusBadge /> : null}
 
-      {masterInfo ? (
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
-                {masterInfo.avatar_url ? (
-                  <Image
-                    src={masterInfo.avatar_url}
-                    alt={masterInfo.name}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-sm font-bold text-slate-500">
-                    {masterInfo.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-
-              <div className="min-w-0">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  Майстер
-                </span>
-                <h4 className="text-sm font-semibold text-zinc-900 truncate">
-                  {masterInfo.name}
-                </h4>
-              </div>
-            </div>
-
-            {directContacts.length > 0 ? (
-              <div className="flex items-center gap-1.5 shrink-0">
-                {directContacts.map((item, idx) => (
-                  <a
-                    key={idx}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-slate-50/80 text-slate-700 hover:bg-slate-100 hover:text-zinc-950 transition-colors"
-                    aria-label={item.label}
-                    title={item.label}
-                  >
-                    <item.icon size={16} />
-                  </a>
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          {contact?.address ? (
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-start gap-1.5 text-xs text-slate-600">
-              <MapPin className="h-4 w-4 shrink-0 text-slate-400 mt-0.5" />
-              {contact.google_maps_link ? (
-                <a
-                  href={contact.google_maps_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-zinc-950 hover:underline transition-colors leading-relaxed"
-                >
-                  {contact.address}
-                </a>
+      <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+              {booking.masterAvatarUrl ? (
+                <Image
+                  src={booking.masterAvatarUrl}
+                  alt={booking.masterName}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
               ) : (
-                <span className="leading-relaxed">{contact.address}</span>
+                <div className="flex h-full w-full items-center justify-center text-sm font-bold text-slate-500">
+                  {booking.masterName.charAt(0).toUpperCase()}
+                </div>
               )}
             </div>
+
+            <div className="min-w-0">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                Майстер
+              </span>
+              <h4 className="text-sm font-semibold text-zinc-900 truncate">
+                {booking.masterName}
+              </h4>
+            </div>
+          </div>
+
+          {directContacts.length > 0 ? (
+            <div className="flex items-center gap-1.5 shrink-0">
+              {directContacts.map((item, idx) => (
+                <a
+                  key={idx}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200/80 bg-slate-50/80 text-slate-700 hover:bg-slate-100 hover:text-zinc-950 transition-colors"
+                  aria-label={item.label}
+                  title={item.label}
+                >
+                  <item.icon size={16} />
+                </a>
+              ))}
+            </div>
           ) : null}
-        </section>
-      ) : null}
+        </div>
+
+        {contact?.address ? (
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-start gap-1.5 text-xs text-slate-600">
+            <MapPin className="h-4 w-4 shrink-0 text-slate-400 mt-0.5" />
+            {contact.google_maps_link ? (
+              <a
+                href={contact.google_maps_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-zinc-950 hover:underline transition-colors leading-relaxed"
+              >
+                {contact.address}
+              </a>
+            ) : (
+              <span className="leading-relaxed">{contact.address}</span>
+            )}
+          </div>
+        ) : null}
+      </section>
 
       <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
         <div>
@@ -169,16 +169,16 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
             {format(startsAt, "d MMMM, EEEE", { locale: uk })}
           </h4>
           <p className="mt-0.5 text-xs text-zinc-500 sm:text-sm">
-            {formatTime(startsAt)} – {formatTime(endsAt)} • {formatDuration(booking.service.duration)}
+            {format(startsAt, "HH:mm")} – {format(endsAt, "HH:mm")} • {durationMinutes} хв
           </p>
         </div>
 
         <div className="mt-3.5 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-3">
           <p className="text-sm font-normal text-zinc-900 sm:text-base truncate">
-            {booking.service.title}
+            {booking.serviceTitle}
           </p>
           <span className="shrink-0 text-sm font-semibold text-zinc-950 sm:text-base">
-            {formatPrice(booking.service.price, booking.service.currency)}
+            {formatPrice(booking.servicePrice, booking.serviceCurrency)}
           </span>
         </div>
       </section>

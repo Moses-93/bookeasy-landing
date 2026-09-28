@@ -2,7 +2,8 @@ import type {
   IPublicMasterProfile,
   IService,
   IBookableTimeSlot,
-  IBooking,
+  IPublicBooking,
+  IBookingHistory,
   ICreateBooking,
   IMasterCustomization,
   PaginatedResponse,
@@ -212,9 +213,20 @@ export async function fetchMasterCustomization(
  */
 export async function createAnonymousBooking(
   payload: ICreateBooking,
-): Promise<IBooking> {
-  return apiFetch<IBooking>("/api/v1/bookings/anonymous", {
+): Promise<IBookingHistory> {
+  return apiFetch<IBookingHistory>("/api/v1/bookings/anonymous", {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+/**
+ * Fetch public booking details by booking token.
+ */
+export async function fetchPublicBooking(
+  bookingToken: string,
+): Promise<IPublicBooking> {
+  return apiFetch<IPublicBooking>(
+    `/api/v1/bookings/${encodeURIComponent(bookingToken)}`,
+  );
 }

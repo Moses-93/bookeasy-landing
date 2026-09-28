@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, CalendarDays, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
 import type {
   ICreateBooking,
-  IBooking,
+  IBookingHistory,
   IPublicMasterProfile,
   IService,
   IBookableTimeSlot,
@@ -19,7 +20,6 @@ import {
   TimePicker,
   MasterHero,
   MasterPortfolio,
-  BookingSuccess,
 } from ".";
 import Brand from "../ui/Brand";
 import {
@@ -29,7 +29,7 @@ import {
 
 interface BookingFlowProps {
   masterId: number;
-  onComplete?: ((data: ICreateBooking) => Promise<IBooking>) | ((data: ICreateBooking) => IBooking);
+  onComplete?: ((data: ICreateBooking) => Promise<IBookingHistory>) | ((data: ICreateBooking) => IBookingHistory);
   masterInfo?: IPublicMasterProfile;
   showContactForm?: boolean;
   services: IService[];
@@ -46,9 +46,9 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
   availableDates,
   customization,
 }) => {
+  const router = useRouter();
   const [isStorefront, setIsStorefront] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [completedBooking, setCompletedBooking] = useState<IBooking | null>(null);
 
   const handleBookingComplete = onComplete || createAnonymousBooking;
 
@@ -107,24 +107,18 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
     };
   }, [currentKey, masterId, duration, formattedDate]);
 
-
   const handleConfirm = async (booking: ICreateBooking) => {
     setErrorMsg(null);
     try {
       const result = await handleBook(booking);
-      setCompletedBooking(result);
+      if ("public_id" in result && result.public_id) {
+        router.push(`/b/${result.public_id}?confirmed=true`);
+      }
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Помилка при створенні бронювання";
       setErrorMsg(message);
     }
-  };
-
-  const handleCloseSuccess = () => {
-    resetFlow();
-    setCompletedBooking(null);
-    setIsStorefront(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const stepHeader =
@@ -168,11 +162,11 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
   }
 
   return (
-    <div className={`min-h-screen bg-[#FDFBFB] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFF0F0]/50 via-[#FDFBFB] to-[#FDFBFB] ${completedBooking ? "pb-16" : "pb-32 sm:pb-36"}`}>
+    <div className="min-h-screen bg-[#FDFBFB] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#FFF0F0]/50 via-[#FDFBFB] to-[#FDFBFB] pb-32 sm:pb-36">
       <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/80 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
         <div className="mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-2 sm:gap-4 sm:px-6 sm:py-3 lg:px-8">
           <div className="flex justify-start">
-            {completedBooking ? null : step > 1 ? (
+            {step > 1 ? (
               <button
                 onClick={handleBack}
                 className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 sm:h-10 sm:w-10"
@@ -192,27 +186,17 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           <Brand />
 
           <div className="flex items-center justify-end gap-2">
-            {completedBooking ? (
-              <button
-                onClick={handleCloseSuccess}
-                aria-label="Закрити"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-50 hover:text-zinc-950 sm:h-10 sm:w-10"
-              >
-                <X size={18} />
-              </button>
-            ) : (
-              [1, 2, 3].map((itemStep) => {
-                const active = itemStep === step;
-                const done = itemStep < step;
+            {[1, 2, 3].map((itemStep) => {
+              const active = itemStep === step;
+              const done = itemStep < step;
 
-                return (
-                  <div
-                    key={itemStep}
-                    className={`h-1.5 rounded-full transition-all ${active ? "w-6 bg-zinc-950" : done ? "w-2 bg-zinc-600" : "w-2 bg-zinc-200"}`}
-                  />
-                );
-              })
-            )}
+              return (
+                <div
+                  key={itemStep}
+                  className={`h-1.5 rounded-full transition-all ${active ? "w-6 bg-zinc-950" : done ? "w-2 bg-zinc-600" : "w-2 bg-zinc-200"}`}
+                />
+              );
+            })}
           </div>
         </div>
       </header>
@@ -225,15 +209,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
       ) : null}
 
       <div className="mx-auto max-w-5xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        {completedBooking ? (
-          <div className="mx-auto max-w-xl">
-            <BookingSuccess
-              booking={completedBooking}
-              masterInfo={masterInfo}
-            />
-          </div>
-        ) : (
-          <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {errorMsg ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-800">
               {errorMsg}
@@ -269,8 +245,8 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           )}
 
           {step === 3 &&
-          selectedService &&
-          selectedDate ? (
+            selectedService &&
+            selectedDate ? (
             masterInfo && masterInfo.online_booking === false ? (
               <div className="rounded-3xl border border-amber-100 bg-white p-6 sm:p-10 text-center max-w-xl mx-auto shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
                 <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -298,11 +274,10 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
               />
             )
           ) : null}
-          </div>
-        )}
+        </div>
       </div>
 
-      {!completedBooking && step < 3 ? (
+      {step < 3 ? (
         <footer className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/60 bg-white/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-5xl items-center justify-end px-4 pt-3 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:py-4 lg:px-8">
             {step === 1 && (

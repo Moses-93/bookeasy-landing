@@ -491,7 +491,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ResponseBookingSchema"
+                                    "$ref": "#/components/schemas/BookingHistorySchema"
                                 }
                             }
                         }
@@ -507,6 +507,54 @@
                     },
                     "500": {
                         "description": "Internal Server Error: Unexpected system failure"
+                    }
+                }
+            }
+        }
+    },
+    "/api/v1/bookings/{public_id}": {
+        "get": {
+            "tags": [
+                "public:bookings"
+            ],
+            "summary": "Get Public Booking",
+            "operationId": "get_public_booking_api_v1_bookings__public_id__get",
+            "parameters": [
+                {
+                    "name": "public_id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                        "type": "string",
+                        "title": "Public Id"
+                    }
+                }
+            ],
+            "responses": {
+                "200": {
+                    "description": "Successful Response",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PublicBookingSchema"
+                            }
+                        }
+                    }
+                },
+                "500": {
+                    "description": "Internal Server Error: Unexpected system failure"
+                },
+                "404": {
+                    "description": "Booking not found or invalid public ID"
+                },
+                "422": {
+                    "description": "Validation Error",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HTTPValidationError"
+                            }
+                        }
                     }
                 }
             }
@@ -534,6 +582,12 @@
                         "type": "boolean",
                         "title": "Online Booking",
                         "description": "Whether online booking is enabled for the master"
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "format": "zoneinfo",
+                        "title": "Timezone",
+                        "description": "Master's IANA timezone"
                     },
                     "avatar_url": {
                         "anyOf": [
@@ -586,6 +640,7 @@
                     "name",
                     "contact",
                     "online_booking",
+                    "timezone",
                     "created_at",
                     "updated_at"
                 ],
@@ -1045,12 +1100,12 @@
                 ],
                 "title": "CreateAnonymousBookingSchema"
             },
-            "ResponseBookingSchema": {
+            "BookingHistorySchema": {
                 "properties": {
-                    "id": {
+                    "booking_id": {
                         "type": "integer",
                         "minimum": 1,
-                        "title": "Id",
+                        "title": "Booking Id",
                         "description": "Unique identifier of the booking",
                         "examples": [
                             1
@@ -1074,20 +1129,87 @@
                             1
                         ]
                     },
-                    "service": {
-                        "$ref": "#/components/schemas/ResponseServiceSchema",
-                        "description": "Service"
+                    "client_name": {
+                        "type": "string",
+                        "title": "Client Name",
+                        "description": "Client name"
                     },
-                    "time_slot": {
-                        "$ref": "#/components/schemas/TimeSlotSchema",
-                        "description": "Time slot"
+                    "service_title": {
+                        "type": "string",
+                        "title": "Service Title",
+                        "description": "Service title"
+                    },
+                    "service_price": {
+                        "type": "string",
+                        "title": "Service Price",
+                        "description": "Service price"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Start Time",
+                        "description": "Booking start time"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "End Time",
+                        "description": "Booking end time"
                     },
                     "status": {
                         "$ref": "#/components/schemas/BookingStatus",
                         "description": "Status of the booking",
                         "examples": [
-                            "active"
+                            "completed"
                         ]
+                    },
+                    "public_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Public Id",
+                        "description": "Public booking ID"
+                    },
+                    "client_phone": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Client Phone",
+                        "description": "Client phone number"
+                    },
+                    "telegram_username": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Telegram Username",
+                        "description": "Client Telegram username"
+                    },
+                    "instagram_username": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Instagram Username",
+                        "description": "Client Instagram username"
                     },
                     "notes": {
                         "anyOf": [
@@ -1100,19 +1222,175 @@
                         ],
                         "title": "Notes",
                         "description": "Provider's notes about the booking"
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment",
+                        "description": "Client's comment about the booking"
+                    },
+                    "color": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Color",
+                        "description": "Service color hex code",
+                        "examples": [
+                            "#BE123C"
+                        ]
                     }
                 },
                 "type": "object",
                 "required": [
-                    "id",
+                    "booking_id",
                     "client_id",
                     "master_id",
-                    "service",
-                    "time_slot",
+                    "client_name",
+                    "service_title",
+                    "service_price",
+                    "start_time",
+                    "end_time",
                     "status"
                 ],
-                "title": "ResponseBookingSchema",
-                "description": "Schema for response booking."
+                "title": "BookingHistorySchema",
+                "description": "Schema for booking history response."
+            },
+            "PublicBookingSchema": {
+                "properties": {
+                    "publicId": {
+                        "type": "string",
+                        "title": "Publicid",
+                        "description": "Unique obfuscated public identifier of the booking",
+                        "examples": [
+                            "1RzCyD"
+                        ]
+                    },
+                    "masterName": {
+                        "type": "string",
+                        "title": "Mastername",
+                        "description": "Master full name",
+                        "examples": [
+                            "Jane Doe"
+                        ]
+                    },
+                    "masterContact": {
+                        "$ref": "#/components/schemas/ContactSchema",
+                        "description": "Master contact details and social media links"
+                    },
+                    "masterToken": {
+                        "type": "string",
+                        "title": "Mastertoken",
+                        "description": "Unique master public profile token",
+                        "examples": [
+                            "A3E2-25CB-D794"
+                        ]
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "format": "zoneinfo",
+                        "title": "Timezone",
+                        "description": "Master's IANA timezone",
+                        "examples": [
+                            "Europe/Kyiv"
+                        ]
+                    },
+                    "serviceTitle": {
+                        "type": "string",
+                        "title": "Servicetitle",
+                        "description": "Booked service title",
+                        "examples": [
+                            "Haircut"
+                        ]
+                    },
+                    "servicePrice": {
+                        "type": "string",
+                        "title": "Serviceprice",
+                        "description": "Booked service price in major units",
+                        "examples": [
+                            "450.00"
+                        ]
+                    },
+                    "startTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Starttime",
+                        "description": "Booking start time in UTC",
+                        "examples": [
+                            "2026-06-10T10:00:00Z"
+                        ]
+                    },
+                    "endTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Endtime",
+                        "description": "Booking end time in UTC",
+                        "examples": [
+                            "2026-06-10T11:00:00Z"
+                        ]
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/BookingStatus",
+                        "description": "Status of the booking",
+                        "examples": [
+                            "active"
+                        ]
+                    },
+                    "comment": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Comment",
+                        "description": "Client's comment about the booking",
+                        "examples": [
+                            "Please call before arrival"
+                        ]
+                    },
+                    "masterAvatarUrl": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Masteravatarurl",
+                        "description": "Master avatar image URL",
+                        "examples": [
+                            "https://example.com/avatar.jpg"
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "publicId",
+                    "masterName",
+                    "masterContact",
+                    "timezone",
+                    "serviceTitle",
+                    "servicePrice",
+                    "startTime",
+                    "endTime",
+                    "status"
+                ],
+                "title": "PublicBookingSchema",
+                "description": "Schema for public booking details response."
             },
             "TimeSlotSchema": {
                 "properties": {

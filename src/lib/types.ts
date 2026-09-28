@@ -77,6 +77,7 @@ export interface IPublicMasterProfile {
   name: string;
   contact: IContact;
   online_booking: boolean;
+  timezone: string;
   avatar_url: string | null;
   cover_url: string | null;
   portfolio: IPhoto[];
@@ -113,6 +114,42 @@ export const bookingStatusSchema = z.enum([
 ]);
 
 export type IBookingStatus = z.infer<typeof bookingStatusSchema>;
+
+export interface IPublicBooking {
+  publicId: string;
+  masterName: string;
+  masterContact: IContact;
+  masterToken: string;
+  timezone: string;
+  serviceTitle: string;
+  servicePrice: string;
+  serviceCurrency: Currency;
+  startTime: string;
+  endTime: string;
+  status: IBookingStatus;
+  comment: string | null;
+  masterAvatarUrl: string | null;
+}
+
+export interface IBookingHistory {
+  booking_id: number;
+  client_id: number;
+  master_id: number;
+  client_name: string;
+  service_title: string;
+  service_price: string;
+  service_currency: Currency;
+  start_time: string;
+  end_time: string;
+  status: IBookingStatus;
+  public_id: string | null;
+  client_phone: string | null;
+  telegram_username: string | null;
+  instagram_username: string | null;
+  notes: string | null;
+  comment: string | null;
+  color: string | null;
+}
 
 export interface IBooking {
   id: number;

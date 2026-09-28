@@ -26,6 +26,7 @@ const VERCEL_EXACT: ReadonlySet<string> = new Set([
 function isVercelRoute(pathname: string): boolean {
   if (VERCEL_EXACT.has(pathname)) return true;
   if (pathname.startsWith("/m/")) return true;
+  if (pathname.startsWith("/b/")) return true;
   if (pathname.startsWith("/_next/")) return true;
   return false;
 }

@@ -4,4 +4,5 @@ export { default as TimePicker } from "./TimePicker";
 export { default as BookingConfirmation } from "./BookingConfirmation";
 export { default as BookingSuccess } from "./BookingSuccess";
 export { default as ServiceDetailModal } from "./ServiceDetailModal";
+export { default as BookingSummaryCard } from "./BookingSummaryCard";
 export * from "./MasterStorefront";

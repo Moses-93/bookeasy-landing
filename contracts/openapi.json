@@ -1004,6 +1004,27 @@
                 "title": "BookableTimeSlotSchema",
                 "description": "Represents a block of time slots."
             },
+            "BookedServiceSchema": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "title": "Title",
+                        "description": "Service title at booking time"
+                    },
+                    "price": {
+                        "type": "string",
+                        "title": "Price",
+                        "description": "Agreed service price"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title",
+                    "price"
+                ],
+                "title": "BookedServiceSchema",
+                "description": "Schema for historical booked service snapshot."
+            },
             "CreateAnonymousBookingSchema": {
                 "properties": {
                     "master_id": {
@@ -1015,14 +1036,19 @@
                             1
                         ]
                     },
-                    "service_id": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "title": "Service Id",
-                        "description": "Unique identifier of the service",
-                        "examples": [
-                            1
-                        ]
+                    "service_ids": {
+                        "items": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "description": "Unique identifier of the service",
+                            "examples": [
+                                1
+                            ]
+                        },
+                        "type": "array",
+                        "minItems": 1,
+                        "title": "Service Ids",
+                        "description": "List of service identifiers"
                     },
                     "time_slot_ids": {
                         "items": {
@@ -1038,28 +1064,51 @@
                         "title": "Time Slot Ids",
                         "description": "List of time slot identifiers"
                     },
-                    "name": {
+                    "first_name": {
                         "type": "string",
-                        "title": "Name",
-                        "description": "Client's name"
+                        "maxLength": 100,
+                        "minLength": 2,
+                        "title": "First Name",
+                        "description": "Client's first name",
+                        "examples": [
+                            "John"
+                        ]
+                    },
+                    "last_name": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 100,
+                                "minLength": 2
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Name",
+                        "description": "Client's last name",
+                        "examples": [
+                            "Doe"
+                        ]
                     },
                     "phone_number": {
                         "type": "string",
                         "title": "Phone Number",
                         "description": "Client's phone number"
                     },
-                    "email": {
+                    "comment": {
                         "anyOf": [
                             {
                                 "type": "string",
-                                "format": "email"
+                                "maxLength": 500,
+                                "minLength": 1
                             },
                             {
                                 "type": "null"
                             }
                         ],
-                        "title": "Email",
-                        "description": "Client's email address"
+                        "title": "Comment",
+                        "description": "Client's comment or message to master"
                     },
                     "instagram_username": {
                         "anyOf": [
@@ -1093,9 +1142,9 @@
                 "type": "object",
                 "required": [
                     "master_id",
-                    "service_id",
+                    "service_ids",
                     "time_slot_ids",
-                    "name",
+                    "first_name",
                     "phone_number"
                 ],
                 "title": "CreateAnonymousBookingSchema"
@@ -1134,15 +1183,26 @@
                         "title": "Client Name",
                         "description": "Client name"
                     },
-                    "service_title": {
-                        "type": "string",
-                        "title": "Service Title",
-                        "description": "Service title"
+                    "services": {
+                        "items": {
+                            "$ref": "#/components/schemas/BookedServiceSchema"
+                        },
+                        "type": "array",
+                        "minItems": 1,
+                        "title": "Services",
+                        "description": "List of booked services"
                     },
-                    "service_price": {
+                    "price": {
                         "type": "string",
-                        "title": "Service Price",
-                        "description": "Service price"
+                        "title": "Price",
+                        "description": "Total booking price"
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency",
+                        "description": "Currency of the booked service",
+                        "examples": [
+                            "UAH"
+                        ]
                     },
                     "start_time": {
                         "type": "string",
@@ -1257,8 +1317,9 @@
                     "client_id",
                     "master_id",
                     "client_name",
-                    "service_title",
-                    "service_price",
+                    "services",
+                    "price",
+                    "currency",
                     "start_time",
                     "end_time",
                     "status"
@@ -1305,20 +1366,28 @@
                             "Europe/Kyiv"
                         ]
                     },
-                    "serviceTitle": {
-                        "type": "string",
-                        "title": "Servicetitle",
-                        "description": "Booked service title",
-                        "examples": [
-                            "Haircut"
-                        ]
+                    "services": {
+                        "items": {
+                            "$ref": "#/components/schemas/BookedServiceSchema"
+                        },
+                        "type": "array",
+                        "minItems": 1,
+                        "title": "Services",
+                        "description": "Booked service items"
                     },
-                    "servicePrice": {
+                    "price": {
                         "type": "string",
-                        "title": "Serviceprice",
-                        "description": "Booked service price in major units",
+                        "title": "Price",
+                        "description": "Total booking price in major units",
                         "examples": [
                             "450.00"
+                        ]
+                    },
+                    "currency": {
+                        "$ref": "#/components/schemas/Currency",
+                        "description": "Currency of the booked service",
+                        "examples": [
+                            "UAH"
                         ]
                     },
                     "startTime": {
@@ -1382,9 +1451,11 @@
                     "publicId",
                     "masterName",
                     "masterContact",
+                    "masterToken",
                     "timezone",
-                    "serviceTitle",
-                    "servicePrice",
+                    "services",
+                    "price",
+                    "currency",
                     "startTime",
                     "endTime",
                     "status"

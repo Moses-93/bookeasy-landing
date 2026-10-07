@@ -21,14 +21,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const booking = await fetchPublicBooking(bookingToken);
     const startsAt = new TZDate(booking.startTime, booking.timezone);
     const formattedDate = format(startsAt, "d MMMM", { locale: uk });
-    const title = `${booking.serviceTitle} — ${formattedDate}`;
-    const description = `Деталі візиту: ${booking.serviceTitle} — ${booking.masterName}.`;
+    const formattedTime = format(startsAt, "HH:mm");
+    const title = `Візит до ${booking.masterName} — ${formattedDate}, ${formattedTime}`;
+
     const pageUrl = `https://bookeasy.com.ua/b/${bookingToken}`;
     const imageUrl = booking.masterAvatarUrl || "https://bookeasy.com.ua/og-image.png";
 
     return {
       title,
-      description,
       alternates: {
         canonical: pageUrl,
       },
@@ -38,7 +38,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
       openGraph: {
         title,
-        description,
         type: "website",
         url: pageUrl,
         images: [{ url: imageUrl }],
@@ -46,7 +45,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       twitter: {
         card: "summary_large_image",
         title,
-        description,
         images: [imageUrl],
       },
     };

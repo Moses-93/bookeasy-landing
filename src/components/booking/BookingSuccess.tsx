@@ -2,8 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { format } from "date-fns";
-import { uk } from "date-fns/locale";
 import { TZDate } from "@date-fns/tz";
 import {
   Send,
@@ -14,10 +12,8 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 
 import type { IPublicBooking } from "@/lib/types";
 import { phoneNumberSchema } from "@/lib/types";
-import {
-  formatPrice,
-} from "@/lib/formatters";
 import BookingStatusBadge from "./BookingStatusBadge";
+import BookingSummaryCard from "./BookingSummaryCard";
 
 interface BookingSuccessProps {
   booking: IPublicBooking;
@@ -163,25 +159,14 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
         ) : null}
       </section>
 
-      <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
-        <div>
-          <h4 className="text-sm font-semibold capitalize text-zinc-900 sm:text-base">
-            {format(startsAt, "d MMMM, EEEE", { locale: uk })}
-          </h4>
-          <p className="mt-0.5 text-xs text-zinc-500 sm:text-sm">
-            {format(startsAt, "HH:mm")} – {format(endsAt, "HH:mm")} • {durationMinutes} хв
-          </p>
-        </div>
-
-        <div className="mt-3.5 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-3">
-          <p className="text-sm font-normal text-zinc-900 sm:text-base truncate">
-            {booking.serviceTitle}
-          </p>
-          <span className="shrink-0 text-sm font-semibold text-zinc-950 sm:text-base">
-            {formatPrice(booking.servicePrice, booking.serviceCurrency)}
-          </span>
-        </div>
-      </section>
+      <BookingSummaryCard
+        startsAt={startsAt}
+        endsAt={endsAt}
+        durationMinutes={durationMinutes}
+        services={booking.services}
+        totalPrice={booking.price}
+        currency={booking.currency}
+      />
 
       {botUrl ? (
         <section className="overflow-hidden rounded-2xl border border-sky-200/50 bg-sky-50/40 p-4 sm:p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">

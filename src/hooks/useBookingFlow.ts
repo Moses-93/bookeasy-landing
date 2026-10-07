@@ -18,13 +18,13 @@ interface UseBookingFlowOptions {
 
 export interface UseBookingFlowReturn {
   step: number;
-  selectedService: IService | null;
+  selectedServices: IService[];
   selectedDate: Date | null;
   selectedSlot: IBookableTimeSlot | null;
   isSubmitting: boolean;
   canProceed: boolean;
 
-  selectService: (service: IService) => void;
+  toggleService: (service: IService) => void;
   setSelectedDate: (date: Date | null) => void;
   setSelectedSlot: (slot: IBookableTimeSlot | null) => void;
   handleNext: () => void;
@@ -49,16 +49,21 @@ export const useBookingFlow = (
   const router = useRouter();
 
   const [step, setStep] = useState(1);
-  const [selectedService, setSelectedService] = useState<IService | null>(null);
+  const [selectedServices, setSelectedServices] = useState<IService[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | null>(() => initialDate);
   const [selectedSlot, setSelectedSlot] = useState<IBookableTimeSlot | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canProceed =
-    step === 1 ? Boolean(selectedService) : Boolean(selectedDate && selectedSlot);
+    step === 1
+      ? selectedServices.length > 0
+      : Boolean(selectedDate && selectedSlot);
 
-  const selectService = (service: IService) => {
-    setSelectedService(service);
+  const toggleService = (service: IService) => {
+    setSelectedServices((prev) => {
+      const exists = prev.some((s) => s.id === service.id);
+      return exists ? prev.filter((s) => s.id !== service.id) : [...prev, service];
+    });
     setSelectedSlot(null);
   };
 
@@ -84,7 +89,7 @@ export const useBookingFlow = (
 
   const resetFlow = () => {
     setStep(1);
-    setSelectedService(null);
+    setSelectedServices([]);
     setSelectedDate(initialDate);
     setSelectedSlot(null);
     setIsSubmitting(false);
@@ -102,12 +107,12 @@ export const useBookingFlow = (
 
   return {
     step,
-    selectedService,
+    selectedServices,
     selectedDate,
     selectedSlot,
     isSubmitting,
     canProceed,
-    selectService,
+    toggleService,
     setSelectedDate: handleDateChange,
     setSelectedSlot,
     handleNext,

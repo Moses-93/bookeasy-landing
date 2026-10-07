@@ -2,17 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
+import { ChevronLeft, CalendarDays } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 
-import type {
-  ICreateBooking,
-  IBookingHistory,
-  IPublicMasterProfile,
-  IService,
-  IBookableTimeSlot,
-  IMasterCustomization,
+import {
+  durationSchema,
+  type ICreateBooking,
+  type IBookingHistory,
+  type IPublicMasterProfile,
+  type IService,
+  type IBookableTimeSlot,
+  type IMasterCustomization,
 } from "@/lib/types";
+import { getDurationMinutes, formatPrice } from "@/lib/formatters";
 import { useBookingFlow } from "@/hooks/useBookingFlow";
 import {
   BookingConfirmation,
@@ -30,7 +33,7 @@ import {
 interface BookingFlowProps {
   masterId: number;
   onComplete?: ((data: ICreateBooking) => Promise<IBookingHistory>) | ((data: ICreateBooking) => IBookingHistory);
-  masterInfo?: IPublicMasterProfile;
+  masterInfo: IPublicMasterProfile;
   showContactForm?: boolean;
   services: IService[];
   availableDates: string[];
@@ -58,21 +61,37 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
 
   const {
     step,
-    selectedService,
+    selectedServices,
     selectedDate,
     selectedSlot,
     isSubmitting,
-    canProceed,
     setSelectedDate,
     setSelectedSlot,
-    selectService,
+    toggleService,
     handleNext,
     handleBack,
     handleBook,
     resetFlow,
   } = useBookingFlow({ onComplete: handleBookingComplete, maxSteps: 3, initialDate });
 
-  const duration = selectedService?.duration;
+  const totalDurationMinutes = React.useMemo(() => {
+    return selectedServices.reduce(
+      (acc, s) => acc + getDurationMinutes(s.duration),
+      0,
+    );
+  }, [selectedServices]);
+
+  const totalPrice = React.useMemo(() => {
+    return selectedServices.reduce((acc, s) => acc + (parseFloat(s.price) || 0), 0);
+  }, [selectedServices]);
+
+  const currency = selectedServices[0]?.currency ?? "UAH";
+
+  const duration = React.useMemo(() => {
+    if (totalDurationMinutes <= 0) return null;
+    return durationSchema.parse(`PT${totalDurationMinutes}M`);
+  }, [totalDurationMinutes]);
+
   const formattedDate = selectedDate ? format(selectedDate, "yyyy-MM-dd") : null;
   const currentKey =
     !isStorefront && duration && formattedDate ? `${masterId}_${duration}_${formattedDate}` : "";
@@ -140,19 +159,12 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
         </div>
 
         <footer className="fixed inset-x-0 bottom-0 z-[60] pb-6 pt-12 px-4 sm:px-6 flex justify-center bg-gradient-to-t from-[#FDFBFB] via-[#FDFBFB]/90 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_top,black_60%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_top,black_60%,transparent_100%)] pointer-events-none">
-          <style>{`
-            @keyframes beauty-pulse {
-              0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(43, 3, 10, 0.15); }
-              50% { transform: scale(1.02); box-shadow: 0 12px 40px rgba(43, 3, 10, 0.25); }
-            }
-          `}</style>
           <button
             onClick={() => {
               resetFlow();
               setIsStorefront(false);
             }}
-            className="pointer-events-auto h-14 w-full sm:w-auto sm:px-16 rounded-full bg-zinc-950 text-white text-[16px] font-medium hover:bg-zinc-800 transition-all duration-300 active:scale-95 shadow-xl"
-            style={{ animation: "beauty-pulse 3s ease-in-out infinite" }}
+            className="pointer-events-auto h-[52px] w-full max-w-xl rounded-2xl bg-zinc-950 hover:bg-zinc-800 shadow-[0_8px_24px_rgba(0,0,0,0.16)] text-white text-[15px] sm:text-base font-semibold active:scale-[0.98] transition-all duration-200"
           >
             Записатися
           </button>
@@ -227,8 +239,8 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           {step === 1 && (
             <ServiceSelector
               services={services}
-              selectedService={selectedService}
-              onSelectService={selectService}
+              selectedServices={selectedServices}
+              onToggleService={toggleService}
             />
           )}
 
@@ -245,7 +257,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           )}
 
           {step === 3 &&
-            selectedService &&
+            selectedServices.length > 0 &&
             selectedDate ? (
             masterInfo && masterInfo.online_booking === false ? (
               <div className="rounded-3xl border border-amber-100 bg-white p-6 sm:p-10 text-center max-w-xl mx-auto shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
@@ -264,9 +276,9 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
             ) : (
               <BookingConfirmation
                 masterId={masterId}
-                service={selectedService}
-                date={selectedDate}
+                services={selectedServices}
                 slot={selectedSlot!}
+                timezone={masterInfo.timezone}
                 onConfirm={handleConfirm}
                 isSubmitting={isSubmitting}
                 showContactForm={showContactForm}
@@ -277,39 +289,45 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
         </div>
       </div>
 
-      {step < 3 ? (
-        <footer className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/60 bg-white/80 backdrop-blur-md">
-          <div className="mx-auto flex max-w-5xl items-center justify-end px-4 pt-3 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:py-4 lg:px-8">
-            {step === 1 && (
-              <button
-                onClick={handleNext}
-                disabled={!canProceed}
-                className={`inline-flex w-full sm:w-auto h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold transition-all duration-300 sm:px-8 ${canProceed
-                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)] active:scale-[0.98]"
-                  : "cursor-not-allowed bg-white/50 text-stone-400"
-                  }`}
-              >
-                {selectedService ? "Далі" : "Оберіть послугу"}
-                {selectedService ? <ChevronRight size={18} /> : null}
-              </button>
-            )}
-
-            {step === 2 && (
-              <button
-                onClick={handleNext}
-                disabled={!canProceed}
-                className={`inline-flex w-full sm:w-auto h-12 shrink-0 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold transition-all duration-300 sm:px-8 ${canProceed
-                  ? "bg-zinc-950 text-white hover:bg-zinc-800 shadow-[0_8px_20px_rgba(0,0,0,0.15)] active:scale-[0.98]"
-                  : "cursor-not-allowed bg-white/50 text-stone-400"
-                  }`}
-              >
-                {selectedSlot ? "Далі" : "Оберіть час"}
-                {selectedSlot ? <ChevronRight size={18} /> : null}
-              </button>
-            )}
-          </div>
-        </footer>
-      ) : null}
+      <AnimatePresence>
+        {step < 3 &&
+        ((step === 1 && selectedServices.length > 0) ||
+          (step === 2 && selectedSlot !== null)) ? (
+          <motion.footer
+            key={`footer-step-${step}`}
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-x-0 bottom-0 z-[60] rounded-t-[28px] bg-white/80 backdrop-blur-md border-t border-slate-200/80 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] px-4 pt-3.5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:pt-4"
+          >
+            <div className="max-w-xl mx-auto">
+              {step === 1 ? (
+                <div className="flex items-center justify-between gap-3 sm:gap-4">
+                  <div className="w-[35%] shrink-0 min-w-0 text-[14px] sm:text-[15px] font-bold text-zinc-900 tracking-tight truncate">
+                    {totalDurationMinutes} хв • {formatPrice(totalPrice.toString(), currency)}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="flex-1 h-[52px] rounded-2xl flex items-center justify-center bg-zinc-950 hover:bg-zinc-800 shadow-[0_4px_14px_rgba(0,0,0,0.14)] text-white text-[15px] sm:text-base font-semibold active:scale-[0.98] transition-all duration-200"
+                  >
+                    Далі
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="w-full h-[52px] rounded-2xl bg-zinc-950 hover:bg-zinc-800 shadow-[0_4px_14px_rgba(0,0,0,0.14)] text-white text-[15px] sm:text-base font-semibold active:scale-[0.98] transition-all duration-200"
+                >
+                  Продовжити
+                </button>
+              )}
+            </div>
+          </motion.footer>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 };

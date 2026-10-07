@@ -8,14 +8,14 @@ import { ServiceDetailModal } from "./ServiceDetailModal";
 
 interface ServiceSelectorProps {
   services: IService[];
-  selectedService: IService | null;
-  onSelectService: (service: IService) => void;
+  selectedServices: IService[];
+  onToggleService: (service: IService) => void;
 }
 
 const ServiceSelector: React.FC<ServiceSelectorProps> = ({
   services,
-  selectedService,
-  onSelectService,
+  selectedServices,
+  onToggleService,
 }) => {
   const [activeInfoService, setActiveInfoService] = useState<IService | null>(null);
   const visibleServices = services;
@@ -24,44 +24,36 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
     <div className="space-y-3 sm:space-y-5">
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         {visibleServices.map((service) => {
-          const isSelected = selectedService?.id === service.id;
+          const isSelected = selectedServices.some((s) => s.id === service.id);
           const hasDescription = Boolean(service.description?.trim());
 
           return (
             <div
               key={service.id}
-              role="button"
+              role="checkbox"
               tabIndex={0}
-              aria-pressed={isSelected}
+              aria-checked={isSelected}
               onClick={(e) => {
                 if (e.target === e.currentTarget || !(e.target as HTMLElement).closest("button")) {
-                  onSelectService(service);
+                  onToggleService(service);
                 }
               }}
               onKeyDown={(e) => {
-                if ((e.key === "Enter" || e.key === " ") && (e.target === e.currentTarget)) {
+                if ((e.key === "Enter" || e.key === " ") && e.target === e.currentTarget) {
                   e.preventDefault();
-                  onSelectService(service);
+                  onToggleService(service);
                 }
               }}
-              className={`group relative flex cursor-pointer flex-col gap-2.5 rounded-[22px] p-3.5 text-left transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/30 sm:rounded-[24px] sm:p-5 md:h-full select-none ${
+              className={`group relative flex cursor-pointer flex-col gap-2.5 rounded-[22px] p-3.5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950/30 sm:rounded-[24px] sm:p-5 md:h-full select-none ${
                 isSelected
-                  ? "border border-zinc-950 bg-white shadow-sm"
+                  ? "border border-zinc-950 bg-zinc-50/40 shadow-sm ring-1 ring-zinc-950/5"
                   : "border border-zinc-200 bg-white shadow-sm hover:border-zinc-300 hover:shadow-md"
               }`}
             >
-              <div
-                className={`absolute right-3.5 top-3.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors duration-300 sm:right-5 sm:top-5 ${
-                  isSelected ? "border border-zinc-950 bg-white" : "border border-zinc-200 bg-white"
-                }`}
-              >
-                {isSelected ? <div className="h-2.5 w-2.5 rounded-full bg-zinc-950" /> : null}
-              </div>
-
-              <div className="min-w-0 pr-9 sm:pr-10">
+              <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <h4
-                    className={`text-[16px] font-semibold tracking-tight break-words transition-colors duration-300 ${
+                    className={`text-[16px] font-semibold tracking-tight break-words transition-colors duration-200 ${
                       isSelected ? "text-zinc-950" : "text-stone-800"
                     }`}
                   >
@@ -94,7 +86,7 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
 
               <div className="mt-1 flex w-full items-end gap-2.5 sm:mt-3 sm:gap-3 md:mt-auto">
                 <span
-                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors duration-300 ${
+                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors duration-200 ${
                     isSelected
                       ? "border-zinc-950/10 bg-zinc-950/5 text-zinc-950"
                       : "border-zinc-200 bg-zinc-50 text-stone-500"
@@ -103,7 +95,7 @@ const ServiceSelector: React.FC<ServiceSelectorProps> = ({
                   <Clock size={12} /> {getDurationMinutes(service.duration)} хв
                 </span>
                 <span
-                  className={`ml-auto block text-right whitespace-nowrap text-[18px] font-semibold tracking-tight tabular-nums transition-colors duration-300 ${
+                  className={`ml-auto block text-right whitespace-nowrap text-[18px] font-semibold tracking-tight tabular-nums transition-colors duration-200 ${
                     isSelected ? "text-zinc-950" : "text-stone-800"
                   }`}
                 >

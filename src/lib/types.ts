@@ -8,6 +8,14 @@ const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9._]{1,30}$/;
 export const CurrencySchema = z.enum(["UAH", "USD", "EUR", "PLN"]);
 export type Currency = z.infer<typeof CurrencySchema>;
 
+export const durationSchema = z.iso.duration();
+export type IsoDuration = z.infer<typeof durationSchema>;
+
+export interface IBookedService {
+  title: string;
+  price: string;
+}
+
 export interface CurrencyInfo {
   code: Currency;
   symbol: string;
@@ -121,9 +129,9 @@ export interface IPublicBooking {
   masterContact: IContact;
   masterToken: string;
   timezone: string;
-  serviceTitle: string;
-  servicePrice: string;
-  serviceCurrency: Currency;
+  services: IBookedService[];
+  price: string;
+  currency: Currency;
   startTime: string;
   endTime: string;
   status: IBookingStatus;
@@ -136,9 +144,9 @@ export interface IBookingHistory {
   client_id: number;
   master_id: number;
   client_name: string;
-  service_title: string;
-  service_price: string;
-  service_currency: Currency;
+  services: IBookedService[];
+  price: string;
+  currency: Currency;
   start_time: string;
   end_time: string;
   status: IBookingStatus;
@@ -205,7 +213,7 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
 
   return z.object({
     master_id: z.number().int().positive(),
-    service_id: z.number().int().positive(),
+    service_ids: z.array(z.number().int().positive()).min(1),
     time_slot_ids: z
       .array(z.number().int().positive())
       .min(1, "Оберіть часовий слот"),

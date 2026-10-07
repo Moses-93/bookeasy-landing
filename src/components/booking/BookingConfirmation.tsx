@@ -2,15 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react";
-import {
-  formatLongDate,
-  formatTime,
-  formatDuration,
-  formatPrice,
-  getDurationMinutes,
-} from "@/lib/formatters";
+import { Loader2 } from "lucide-react";
+import { getDurationMinutes } from "@/lib/formatters";
 import { ClientFormFields } from "./ClientFormFields";
+import BookingSummaryCard from "./BookingSummaryCard";
 import {
   type IBookableTimeSlot,
   type IService,
@@ -19,14 +14,14 @@ import {
   createBookingSchema,
 } from "@/lib/types";
 import useDetectKeyboardOpen from "use-detect-keyboard-open";
-import { parseISO } from "date-fns";
+import { TZDate } from "@date-fns/tz";
 
 interface BookingConfirmationProps {
   masterId: number;
-  service: IService;
-  date: Date;
+  services: IService[];
   slot: IBookableTimeSlot;
   onConfirm: (booking: ICreateBooking) => void;
+  timezone: string;
   isSubmitting?: boolean;
   showContactForm?: boolean;
   customization?: IMasterCustomization | null;
@@ -34,10 +29,10 @@ interface BookingConfirmationProps {
 
 const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   masterId,
-  service,
-  date,
+  services,
   slot,
   onConfirm,
+  timezone,
   isSubmitting = false,
   showContactForm = false,
   customization,
@@ -57,20 +52,22 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
     const result = bookingSchema.safeParse({
       ...Object.fromEntries(formData),
       master_id: masterId,
-      service_id: service.id,
+      service_ids: services.map((s) => s.id),
       time_slot_ids: slot.group_ids,
     });
 
     setIsFormValid(result.success);
   };
 
-  const startTime = parseISO(slot.start_time);
-  const durationMinutes = getDurationMinutes(service.duration);
-  const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
+  const startsAt = new TZDate(slot.start_time, timezone);
+  const totalDurationMinutes = services.reduce(
+    (acc, s) => acc + getDurationMinutes(s.duration),
+    0,
+  );
+  const endsAt = new TZDate(startsAt.getTime() + totalDurationMinutes * 60000, timezone);
 
-  const formattedDate = formatLongDate(date);
-  const formattedSlotTime = formatTime(slot.start_time);
-  const formattedEndTime = formatTime(endTime);
+  const totalPrice = services.reduce((acc, s) => acc + (parseFloat(s.price) || 0), 0);
+  const currency = services[0]?.currency ?? "UAH";
 
   const isKeyboardOpen = useDetectKeyboardOpen();
 
@@ -88,7 +85,7 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
     const validationResult = bookingSchema.safeParse({
       ...Object.fromEntries(formData),
       master_id: masterId,
-      service_id: service.id,
+      service_ids: services.map((s) => s.id),
       time_slot_ids: slot.group_ids,
     });
 
@@ -107,43 +104,14 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
       onChange={handleFormInput}
       className="space-y-4 sm:space-y-6 flex flex-col min-h-full"
     >
-      <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
-        <div className="bg-white rounded-2xl border-[0.5px] border-slate-200/50 p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-50 text-slate-900 sm:h-11 sm:w-11">
-              <CheckCircle2 size={16} />
-            </div>
-            <div>
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">
-                Послуга
-              </p>
-              <h4 className="mt-1 text-sm font-semibold text-slate-900">{service.title}</h4>
-              <p className="mt-1 text-xs text-slate-500">
-                {formatDuration(service.duration)} • {formatPrice(service.price, service.currency)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border-[0.5px] border-slate-200/50 p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-50 text-slate-900 sm:h-11 sm:w-11">
-              <CalendarDays size={16} />
-            </div>
-            <div>
-              <p className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">
-                Час візиту
-              </p>
-              <h4 className="mt-1 text-sm font-semibold capitalize text-slate-900">
-                {formattedDate}
-              </h4>
-              <p className="mt-1 text-xs text-slate-500">
-                {formattedSlotTime} - {formattedEndTime}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <BookingSummaryCard
+        startsAt={startsAt}
+        endsAt={endsAt}
+        durationMinutes={totalDurationMinutes}
+        services={services}
+        totalPrice={totalPrice.toString()}
+        currency={currency}
+      />
 
       {validationError ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-3.5 text-xs font-medium text-red-800">
@@ -168,14 +136,16 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
         </Link>
       </div>
 
-      <div className="sticky bottom-0 z-50 -mx-4 sm:-mx-6 md:-mx-8 px-4 pt-3 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:py-6 md:px-8 mt-6 bg-[#FDFBFB]/80 backdrop-blur-md border-t border-slate-200/50 flex justify-center">
-        <button
-          type="submit"
-          disabled={isSubmitting || !isFormValid}
-          className="pointer-events-auto w-full max-w-sm h-14 flex items-center justify-center gap-2 rounded-full px-5 text-[16px] font-semibold transition-all duration-300 bg-zinc-950 text-white shadow-xl hover:bg-zinc-800 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          {isSubmitting ? <Loader2 size={24} className="animate-spin" /> : "Записатися"}
-        </button>
+      <div className="fixed inset-x-0 bottom-0 z-[60] px-4 pt-3.5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.75rem))] sm:px-6 sm:pt-4 bg-white/80 backdrop-blur-md border-t border-slate-200/80 rounded-t-[28px] shadow-[0_-8px_30px_rgba(0,0,0,0.06)]">
+        <div className="max-w-xl mx-auto w-full">
+          <button
+            type="submit"
+            disabled={isSubmitting || !isFormValid}
+            className="w-full h-[52px] rounded-2xl flex items-center justify-center gap-2 text-[15px] sm:text-base font-semibold text-white bg-zinc-950 hover:bg-zinc-800 shadow-[0_4px_14px_rgba(0,0,0,0.14)] active:scale-[0.98] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
+          >
+            {isSubmitting ? <Loader2 size={22} className="animate-spin" /> : "Записатися"}
+          </button>
+        </div>
       </div>
     </form>
   );

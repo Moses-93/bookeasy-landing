@@ -146,18 +146,6 @@
                         "description": "Unique identifier of the service provider"
                     },
                     {
-                        "name": "is_active",
-                        "in": "query",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "description": "Filter by status. If None, returns active only.",
-                            "default": true,
-                            "title": "Is Active"
-                        },
-                        "description": "Filter by status. If None, returns active only."
-                    },
-                    {
                         "name": "min_price",
                         "in": "query",
                         "required": false,
@@ -914,12 +902,6 @@
                         "type": "integer",
                         "title": "Master Id",
                         "description": "Unique identifier of the service provider"
-                    },
-                    "is_active": {
-                        "type": "boolean",
-                        "title": "Is Active",
-                        "description": "Whether the service is active",
-                        "default": true
                     }
                 },
                 "type": "object",

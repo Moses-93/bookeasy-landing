@@ -101,7 +101,6 @@ export interface IService {
   price: string;
   currency: Currency;
   duration: string;
-  is_active: boolean;
 }
 
 export interface IBookableTimeSlot {

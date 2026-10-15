@@ -165,7 +165,7 @@ export async function fetchServices(
   masterId: number,
 ): Promise<IService[]> {
   const response = await apiFetch<PaginatedResponse<IService>>(
-    `/api/v1/services?master_id=${masterId}&is_active=true`,
+    `/api/v1/services?master_id=${masterId}`,
   );
   return response.items;
 }

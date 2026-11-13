@@ -1,13 +1,31 @@
+import type { operations } from "./api/schema";
 import type {
   IPublicMasterProfile,
   IService,
+  IServicePage,
   IBookableTimeSlot,
   IPublicBooking,
   IBookingHistory,
-  ICreateBooking,
+  ICreateBookingRequest,
   IMasterCustomization,
-  PaginatedResponse,
 } from "./types";
+
+/** Query parameters of a contract operation, derived from the generated OpenAPI types. */
+type QueryOf<Op extends keyof operations> = NonNullable<operations[Op]["parameters"]["query"]>;
+
+/**
+ * Serialize contract-typed query parameters, skipping empty values.
+ *
+ * @param params - Query parameters of a contract operation.
+ * @returns Query string prefixed with "?".
+ */
+function toQueryString<Op extends keyof operations>(params: QueryOf<Op>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params as Record<string, unknown>)) {
+    if (value !== undefined && value !== null) search.append(key, String(value));
+  }
+  return `?${search.toString()}`;
+}
 
 export class ApiError extends Error {
   readonly statusCode: number;
@@ -164,8 +182,8 @@ export async function fetchPublicMasterProfile(
 export async function fetchServices(
   masterId: number,
 ): Promise<IService[]> {
-  const response = await apiFetch<PaginatedResponse<IService>>(
-    `/api/v1/services?master_id=${masterId}`,
+  const response = await apiFetch<IServicePage>(
+    `/api/v1/services${toQueryString<"list_public_services_api_v1_services_get">({ masterId })}`,
   );
   return response.items;
 }
@@ -177,20 +195,32 @@ export async function fetchAvailableDates(
   masterId: number,
 ): Promise<string[]> {
   return apiFetch<string[]>(
-    `/api/v1/time-slots/available-dates?master_id=${masterId}`,
+    `/api/v1/time-slots/available-dates${toQueryString<"list_available_dates_api_v1_time_slots_available_dates_get">({ master_id: masterId })}`,
   );
 }
 
 /**
- * Fetch bookable time slots for a master on a specific date.
+ * Fetch bookable time slots for a master within an inclusive date range.
+ *
+ * @param masterId - Master identifier.
+ * @param duration - ISO 8601 duration of the selected services.
+ * @param startDate - Inclusive range start (YYYY-MM-DD).
+ * @param endDate - Inclusive range end (YYYY-MM-DD); defaults to `startDate` (single day).
+ * @returns Bookable time slots.
  */
 export async function fetchBookableTimeSlots(
   masterId: number,
   duration: string,
-  date: string,
+  startDate: string,
+  endDate: string = startDate,
 ): Promise<IBookableTimeSlot[]> {
   return apiFetch<IBookableTimeSlot[]>(
-    `/api/v1/time-slots/bookable?master_id=${masterId}&duration=${encodeURIComponent(duration)}&on_date=${date}`,
+    `/api/v1/time-slots/bookable${toQueryString<"list_bookable_slots_api_v1_time_slots_bookable_get">({
+      master_id: masterId,
+      duration,
+      start_date: startDate,
+      end_date: endDate,
+    })}`,
   );
 }
 
@@ -212,7 +242,7 @@ export async function fetchMasterCustomization(
  * Create an anonymous booking.
  */
 export async function createAnonymousBooking(
-  payload: ICreateBooking,
+  payload: ICreateBookingRequest,
 ): Promise<IBookingHistory> {
   return apiFetch<IBookingHistory>("/api/v1/bookings/anonymous", {
     method: "POST",

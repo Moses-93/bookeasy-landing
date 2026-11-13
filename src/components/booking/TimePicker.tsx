@@ -44,7 +44,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
   }
 
   const formatSlotTime = (slot: IBookableTimeSlot) => {
-    const start = parseISO(slot.start_time);
+    const start = parseISO(slot.startTime);
     return format(start, "HH:mm");
   };
 
@@ -84,12 +84,12 @@ const TimePicker: React.FC<TimePickerProps> = ({
         ) : timeSlots.length > 0 ? (
           <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4 sm:gap-3">
             {timeSlots.map((slot) => {
-              const isSelected = selectedSlot?.start_time === slot.start_time;
+              const isSelected = selectedSlot?.startTime === slot.startTime;
               const slotTime = formatSlotTime(slot);
 
               return (
                 <button
-                  key={slot.start_time}
+                  key={slot.startTime}
                   onClick={() => onSelectSlot(slot)}
                   className={`w-full rounded-full px-2 py-2 text-sm font-semibold transition-all active:scale-95 sm:px-4 sm:py-2.5 ${
                     isSelected

@@ -1,20 +1,32 @@
 import z from "zod";
 import { isValidPhoneNumber, parsePhoneNumberFromString } from "libphonenumber-js";
+import type { components } from "./api/schema";
 
+type Schemas = components["schemas"];
 
 const TELEGRAM_HANDLE_REGEX = /^[a-zA-Z0-9_]{5,32}$/;
 const INSTAGRAM_HANDLE_REGEX = /^[a-zA-Z0-9._]{1,30}$/;
 
-export const CurrencySchema = z.enum(["UAH", "USD", "EUR", "PLN"]);
-export type Currency = z.infer<typeof CurrencySchema>;
+export type Currency = Schemas["Currency"];
 
 export const durationSchema = z.iso.duration();
-export type IsoDuration = z.infer<typeof durationSchema>;
 
-export interface IBookedService {
-  title: string;
-  price: string;
-}
+export type IContact = Schemas["ContactSchema"];
+export type IPhoto = Schemas["PhotoSchema"];
+export type IPublicMasterProfile = Schemas["PublicMasterProfileSchema"];
+export type IService = Schemas["ResponseServiceSchema"];
+export type IServicePage = Schemas["PaginatedResponse_ResponseServiceSchema_"];
+export type IBookableTimeSlot = Schemas["BookableTimeSlotSchema"];
+export type IBookingStatus = Schemas["BookingStatus"];
+export type IPublicBooking = Schemas["PublicBookingSchema"];
+export type IBookingHistory = Schemas["BookingHistorySchema"];
+export type FieldType = Schemas["FieldType"];
+export type IFormField = Schemas["FormFieldSchema"];
+export type IMasterCustomization = Schemas["MasterCustomizationSchema"];
+export type ICreateBookingRequest = Schemas["CreateAnonymousBookingSchema"];
+
+/** Presentation model of a booked service line (summary card). */
+export type IBookedService = Pick<Schemas["BookedServiceSchema"], "title" | "price">;
 
 export interface CurrencyInfo {
   code: Currency;
@@ -62,129 +74,6 @@ export const phoneNumberSchema = z
   })
   .transform((val) => parsePhoneNumberFromString(val)!.format("E.164"));
 
-export interface IContact {
-  address: string | null;
-  about: string | null;
-  telegram_link: string | null;
-  instagram_link: string | null;
-  google_maps_link: string | null;
-  phone_number: string | null;
-  has_telegram: boolean;
-}
-
-export interface IPhoto {
-  photo_id: number;
-  url: string;
-  position: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface IPublicMasterProfile {
-  master_id: number;
-  name: string;
-  contact: IContact;
-  online_booking: boolean;
-  timezone: string;
-  avatar_url: string | null;
-  cover_url: string | null;
-  portfolio: IPhoto[];
-  created_at: string;
-  updated_at: string;
-}
-
-export interface IService {
-  id: number;
-  master_id: number;
-  title: string;
-  description: string | null;
-  price: string;
-  currency: Currency;
-  duration: string;
-}
-
-export interface IBookableTimeSlot {
-  start_time: string;
-  group_ids: number[];
-}
-
-export interface ITimeSlot {
-  start: string;
-  end: string;
-}
-
-export const bookingStatusSchema = z.enum([
-  "active",
-  "pending",
-  "cancelled",
-  "completed",
-]);
-
-export type IBookingStatus = z.infer<typeof bookingStatusSchema>;
-
-export interface IPublicBooking {
-  publicId: string;
-  masterName: string;
-  masterContact: IContact;
-  masterToken: string;
-  timezone: string;
-  services: IBookedService[];
-  price: string;
-  currency: Currency;
-  startTime: string;
-  endTime: string;
-  status: IBookingStatus;
-  comment: string | null;
-  masterAvatarUrl: string | null;
-}
-
-export interface IBookingHistory {
-  booking_id: number;
-  client_id: number;
-  master_id: number;
-  client_name: string;
-  services: IBookedService[];
-  price: string;
-  currency: Currency;
-  start_time: string;
-  end_time: string;
-  status: IBookingStatus;
-  public_id: string | null;
-  client_phone: string | null;
-  telegram_username: string | null;
-  instagram_username: string | null;
-  notes: string | null;
-  comment: string | null;
-  color: string | null;
-}
-
-export interface IBooking {
-  id: number;
-  status: IBookingStatus | string;
-  service: IService;
-  time_slot: ITimeSlot;
-  created_at: string;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-}
-
-export type FieldType = "instagram" | "telegram" | "comment" | "last_name";
-
-export interface IFormField {
-  type: FieldType;
-  isVisible: boolean;
-  isRequired: boolean;
-  position: number;
-}
-
-export interface IMasterCustomization {
-  customizationId: number | null;
-  formFields: IFormField[];
-}
-
 export const DEFAULT_FORM_FIELDS: IFormField[] = [
   { type: "last_name", isVisible: true, isRequired: false, position: 0 },
   { type: "instagram", isVisible: true, isRequired: false, position: 1 },
@@ -211,17 +100,17 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
   const isCommentRequired = Boolean(commentField?.isVisible && commentField?.isRequired);
 
   return z.object({
-    master_id: z.number().int().positive(),
-    service_ids: z.array(z.number().int().positive()).min(1),
-    time_slot_ids: z
+    masterId: z.number().int().positive(),
+    serviceIds: z.array(z.number().int().positive()).min(1),
+    timeSlotIds: z
       .array(z.number().int().positive())
       .min(1, "Оберіть часовий слот"),
-    first_name: z
+    firstName: z
       .string()
       .trim()
       .min(2, "Ім'я повинно містити щонайменше 2 символи")
       .max(100, "Ім'я не може перевищувати 100 символів"),
-    last_name: isLastNameRequired
+    lastName: isLastNameRequired
       ? z
           .string({ error: "Вкажіть прізвище" })
           .trim()
@@ -243,8 +132,8 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
               .max(100, "Прізвище не може перевищувати 100 символів")
               .nullable(),
           ),
-    phone_number: phoneNumberSchema,
-    instagram_username: isInstagramRequired
+    phoneNumber: phoneNumberSchema,
+    instagramUsername: isInstagramRequired
       ? z
           .string({ error: "Вкажіть Instagram нікнейм" })
           .trim()
@@ -276,7 +165,7 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
               )
               .nullable(),
           ),
-    telegram_username: isTelegramRequired
+    telegramUsername: isTelegramRequired
       ? z
           .string({ error: "Вкажіть Telegram нікнейм" })
           .trim()
@@ -324,3 +213,6 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
 };
 
 export type ICreateBooking = z.infer<ReturnType<typeof createBookingSchema>>;
+
+type AssertAssignable<T extends U, U> = T;
+export type _CreateBookingContractCheck = AssertAssignable<ICreateBooking, ICreateBookingRequest>;

@@ -51,15 +51,15 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
     const formData = new FormData(e.currentTarget);
     const result = bookingSchema.safeParse({
       ...Object.fromEntries(formData),
-      master_id: masterId,
-      service_ids: services.map((s) => s.id),
-      time_slot_ids: slot.group_ids,
+      masterId: masterId,
+      serviceIds: services.map((s) => s.id),
+      timeSlotIds: slot.groupIds,
     });
 
     setIsFormValid(result.success);
   };
 
-  const startsAt = new TZDate(slot.start_time, timezone);
+  const startsAt = new TZDate(slot.startTime, timezone);
   const totalDurationMinutes = services.reduce(
     (acc, s) => acc + getDurationMinutes(s.duration),
     0,
@@ -84,9 +84,9 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
     const formData = new FormData(e.currentTarget);
     const validationResult = bookingSchema.safeParse({
       ...Object.fromEntries(formData),
-      master_id: masterId,
-      service_ids: services.map((s) => s.id),
-      time_slot_ids: slot.group_ids,
+      masterId: masterId,
+      serviceIds: services.map((s) => s.id),
+      timeSlotIds: slot.groupIds,
     });
 
     if (!validationResult.success) {

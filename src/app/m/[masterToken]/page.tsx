@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       `Онлайн-запис на послуги до майстра ${profile.name}. Оберіть зручний час та забронюйте візит онлайн.`;
 
     const pageUrl = `https://bookeasy.com.ua/m/${masterToken}`;
-    const imageUrl = profile.avatar_url || profile.cover_url || "https://bookeasy.com.ua/og-image.png";
+    const imageUrl = profile.avatarUrl || profile.coverUrl || "https://bookeasy.com.ua/og-image.png";
 
     return {
       title: `Онлайн-запис — ${profile.name}`,
@@ -67,9 +67,9 @@ export default async function MasterPage({ params }: PageProps) {
   }
 
   const [services, availableDates, customization] = await Promise.all([
-    fetchServices(profile.master_id).catch(() => [] as IService[]),
-    fetchAvailableDates(profile.master_id).catch(() => [] as string[]),
-    fetchMasterCustomization(profile.master_id).catch(() => null),
+    fetchServices(profile.masterId).catch(() => [] as IService[]),
+    fetchAvailableDates(profile.masterId).catch(() => [] as string[]),
+    fetchMasterCustomization(profile.masterId).catch(() => null),
   ]);
 
   let priceRange: string | undefined = undefined;
@@ -81,9 +81,9 @@ export default async function MasterPage({ params }: PageProps) {
   }
   const currentUrl = `https://bookeasy.com.ua/m/${masterToken}`;
   const sameAs = [
-    profile.contact?.instagram_link,
-    profile.contact?.telegram_link,
-    profile.contact?.google_maps_link,
+    profile.contact?.instagramLink,
+    profile.contact?.telegramLink,
+    profile.contact?.googleMapsLink,
   ].filter(Boolean);
 
   const jsonLd = {
@@ -94,8 +94,8 @@ export default async function MasterPage({ params }: PageProps) {
     ...(currentUrl ? { url: currentUrl } : {}),
     ...(sameAs.length > 0 ? { sameAs } : {}),
     ...(priceRange ? { priceRange } : {}),
-    ...(profile.avatar_url || profile.cover_url
-      ? { image: profile.avatar_url || profile.cover_url }
+    ...(profile.avatarUrl || profile.coverUrl
+      ? { image: profile.avatarUrl || profile.coverUrl }
       : {}),
     ...(profile.contact?.address
       ? {
@@ -107,7 +107,7 @@ export default async function MasterPage({ params }: PageProps) {
         }
       : {}),
     ...(profile.contact?.about ? { description: profile.contact.about } : {}),
-    ...(profile.contact?.phone_number ? { telephone: profile.contact.phone_number } : {}),
+    ...(profile.contact?.phoneNumber ? { telephone: profile.contact.phoneNumber } : {}),
     ...(services.length > 0
       ? {
           hasOfferCatalog: {
@@ -140,7 +140,7 @@ export default async function MasterPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <BookingFlow
-        masterId={profile.master_id}
+        masterId={profile.masterId}
         masterInfo={profile}
         services={services}
         availableDates={availableDates}

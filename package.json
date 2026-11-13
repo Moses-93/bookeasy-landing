@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "api:fetch": "dotenv -e .env.local -- sh -c 'redocly bundle \"${OPENAPI_URL:-$API_URL/openapi.json}\" -o contracts/openapi.json'",
+    "api:types": "openapi-typescript contracts/openapi.json -o src/lib/api/schema.d.ts",
+    "api:sync": "npm run api:fetch && npm run api:types"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
@@ -28,12 +31,15 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@redocly/cli": "^2.78.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.19.43",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "dotenv-cli": "^11.1.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.3.4",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5.9.3"
   }

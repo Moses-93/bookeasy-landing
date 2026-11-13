@@ -1,0 +1,13 @@
+decorators:
+  filter-in:
+    property: operationId
+    value:
+      - get_public_master_profile_api_v1_masters__master_token__public_profile_get
+      - get_master_customization_api_v1_masters__master_id__customization_get
+      - list_public_services_api_v1_services_get
+      - list_available_dates_api_v1_time_slots_available_dates_get
+      - list_bookable_slots_api_v1_time_slots_bookable_get
+      - make_anonymous_booking_api_v1_bookings_anonymous_post
+      - get_public_booking_api_v1_bookings__public_id__get
+  remove-unused-components: on
+

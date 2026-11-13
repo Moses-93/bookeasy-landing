@@ -130,8 +130,8 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
     setErrorMsg(null);
     try {
       const result = await handleBook(booking);
-      if ("public_id" in result && result.public_id) {
-        router.push(`/b/${result.public_id}?confirmed=true`);
+      if (result.publicId) {
+        router.push(`/b/${result.publicId}?confirmed=true`);
       }
     } catch (error) {
       const message =
@@ -155,7 +155,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
         <MasterHero info={masterInfo} />
 
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <MasterPortfolio photos={masterInfo.portfolio} />
+          <MasterPortfolio photos={masterInfo.portfolio ?? []} />
         </div>
 
         <footer className="fixed inset-x-0 bottom-0 z-[60] pb-6 pt-12 px-4 sm:px-6 flex justify-center bg-gradient-to-t from-[#FDFBFB] via-[#FDFBFB]/90 to-transparent backdrop-blur-[2px] [mask-image:linear-gradient(to_top,black_60%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_top,black_60%,transparent_100%)] pointer-events-none">
@@ -213,7 +213,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
         </div>
       </header>
 
-      {masterInfo && masterInfo.online_booking === false ? (
+      {masterInfo && masterInfo.onlineBooking === false ? (
         <div className="bg-amber-50 border-y border-amber-100 px-4 py-3 sm:px-6 flex items-center gap-2.5 text-[13px] font-medium text-amber-900">
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
           Онлайн-запис наразі вимкнено майстром. Ви можете переглядати послуги та віконця.
@@ -259,7 +259,7 @@ const BookingFlow: React.FC<BookingFlowProps> = ({
           {step === 3 &&
             selectedServices.length > 0 &&
             selectedDate ? (
-            masterInfo && masterInfo.online_booking === false ? (
+            masterInfo && masterInfo.onlineBooking === false ? (
               <div className="rounded-3xl border border-amber-100 bg-white p-6 sm:p-10 text-center max-w-xl mx-auto shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
                 <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <CalendarDays className="w-7 h-7" />

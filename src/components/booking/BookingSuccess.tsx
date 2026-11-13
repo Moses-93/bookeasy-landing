@@ -50,8 +50,8 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
     if (!contact) return [];
     const list = [];
 
-    if (contact.phone_number) {
-      const parsedPhone = phoneNumberSchema.safeParse(contact.phone_number);
+    if (contact.phoneNumber) {
+      const parsedPhone = phoneNumberSchema.safeParse(contact.phoneNumber);
       if (parsedPhone.success) {
         list.push({
           icon: Phone,
@@ -61,26 +61,26 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
       }
     }
 
-    if (contact.telegram_link) {
+    if (contact.telegramLink) {
       list.push({
         icon: Send,
-        href: contact.telegram_link,
+        href: contact.telegramLink,
         label: "Telegram",
       });
     }
 
-    if (contact.instagram_link) {
+    if (contact.instagramLink) {
       list.push({
         icon: InstagramIcon,
-        href: contact.instagram_link,
+        href: contact.instagramLink,
         label: "Instagram",
       });
     }
 
-    if (contact.google_maps_link) {
+    if (contact.googleMapsLink) {
       list.push({
         icon: MapPin,
-        href: contact.google_maps_link,
+        href: contact.googleMapsLink,
         label: "Карта",
       });
     }
@@ -143,9 +143,9 @@ const BookingSuccess: React.FC<BookingSuccessProps> = ({
         {contact?.address ? (
           <div className="mt-3 pt-3 border-t border-slate-100 flex items-start gap-1.5 text-xs text-slate-600">
             <MapPin className="h-4 w-4 shrink-0 text-slate-400 mt-0.5" />
-            {contact.google_maps_link ? (
+            {contact.googleMapsLink ? (
               <a
-                href={contact.google_maps_link}
+                href={contact.googleMapsLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-zinc-950 hover:underline transition-colors leading-relaxed"

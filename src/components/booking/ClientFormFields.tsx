@@ -59,7 +59,7 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
           <input
             id="client_first_name_input"
             type="text"
-            name="first_name"
+            name="firstName"
             autoComplete="given-name"
             autoCapitalize="words"
             required
@@ -80,7 +80,7 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
             <input
               id="client_last_name_input"
               type="text"
-              name="last_name"
+              name="lastName"
               autoComplete="family-name"
               autoCapitalize="words"
               placeholder="Ваше прізвище"
@@ -113,7 +113,7 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
             <input
               id="phone_number_input"
               type="tel"
-              name="phone_number"
+              name="phoneNumber"
               autoComplete="tel"
               inputMode="numeric"
               maxLength={15}
@@ -156,7 +156,7 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
                   <input
                     id="instagram_username_input"
                     type="text"
-                    name="instagram_username"
+                    name="instagramUsername"
                     autoComplete="off"
                     autoCapitalize="none"
                     spellCheck={false}
@@ -191,7 +191,7 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
                   <input
                     id="telegram_username_input"
                     type="text"
-                    name="telegram_username"
+                    name="telegramUsername"
                     autoComplete="off"
                     autoCapitalize="none"
                     spellCheck={false}

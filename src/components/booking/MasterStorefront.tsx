@@ -7,33 +7,33 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import { type IPublicMasterProfile, type IPhoto, phoneNumberSchema } from "@/lib/types";
 
 export const MasterHero: React.FC<{ info: IPublicMasterProfile }> = ({ info }) => {
-  const { name, contact, avatar_url, cover_url } = info;
+  const { name, contact, avatarUrl, coverUrl } = info;
 
   const socials = [];
-  if (contact.telegram_link) {
+  if (contact.telegramLink) {
     socials.push({
       icon: Send,
-      href: contact.telegram_link,
+      href: contact.telegramLink,
       label: "Telegram",
     });
   }
-  if (contact.instagram_link) {
+  if (contact.instagramLink) {
     socials.push({
       icon: InstagramIcon,
-      href: contact.instagram_link,
+      href: contact.instagramLink,
       label: "Instagram",
     });
   }
-  if (contact.phone_number) {
-    const parsedPhone = phoneNumberSchema.safeParse(contact.phone_number);
+  if (contact.phoneNumber) {
+    const parsedPhone = phoneNumberSchema.safeParse(contact.phoneNumber);
     if (parsedPhone.success) {
       socials.push({ icon: Phone, href: `tel:${parsedPhone.data}`, label: "Phone" });
     }
   }
-  if (contact.google_maps_link) {
+  if (contact.googleMapsLink) {
     socials.push({
       icon: MapPin,
-      href: contact.google_maps_link,
+      href: contact.googleMapsLink,
       label: "Map",
     });
   }
@@ -42,9 +42,9 @@ export const MasterHero: React.FC<{ info: IPublicMasterProfile }> = ({ info }) =
     <div className="w-full mb-8">
       {/* Cover */}
       <div className="h-56 sm:h-72 w-full relative">
-        {cover_url ? (
+        {coverUrl ? (
           <Image
-            src={cover_url}
+            src={coverUrl}
             alt="Cover"
             fill
             priority
@@ -60,9 +60,9 @@ export const MasterHero: React.FC<{ info: IPublicMasterProfile }> = ({ info }) =
         <div className="flex flex-col items-center text-center sm:flex-row sm:items-end sm:text-left gap-4 sm:gap-5 -mt-12 sm:-mt-16 relative z-10 mb-4 sm:mb-6">
           {/* Avatar */}
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-zinc-100 shadow-sm overflow-hidden shrink-0 relative">
-            {avatar_url ? (
+            {avatarUrl ? (
               <Image
-                src={avatar_url}
+                src={avatarUrl}
                 alt={name}
                 fill
                 className="w-full h-full object-cover"
@@ -83,9 +83,9 @@ export const MasterHero: React.FC<{ info: IPublicMasterProfile }> = ({ info }) =
             {contact.address && (
               <div className="flex items-center justify-center sm:justify-start gap-1.5 mt-1.5 text-[13px] text-stone-500 font-medium">
                 <MapPin size={14} className="shrink-0" />
-                {contact.google_maps_link ? (
+                {contact.googleMapsLink ? (
                   <a
-                    href={contact.google_maps_link}
+                    href={contact.googleMapsLink}
                     target="_blank"
                     rel="noreferrer noopener"
                     className="truncate hover:text-zinc-900 transition-colors underline decoration-zinc-300 underline-offset-2"
@@ -158,7 +158,7 @@ export const MasterPortfolio: React.FC<{ photos: IPhoto[] }> = ({ photos }) => {
 
           {photos.map((photo, index) => (
             <button
-              key={photo.photo_id}
+              key={photo.photoId}
               onClick={() => setSelectedIndex(index)}
               className="relative shrink-0 w-[200px] sm:w-[260px] aspect-[3/4] snap-start rounded-2xl overflow-hidden bg-zinc-100 hover:opacity-90 transition-opacity cursor-zoom-in group"
             >
@@ -228,9 +228,9 @@ export const CompactMasterHeader: React.FC<{ info: IPublicMasterProfile }> = ({ 
   return (
     <div className="flex items-center gap-3 bg-white/95 backdrop-blur-md border border-zinc-200/80 rounded-2xl p-3 shadow-[0_4px_12px_-8px_rgba(24,24,27,0.2)] mb-6">
       <div className="w-10 h-10 rounded-full bg-zinc-100 overflow-hidden shrink-0 border border-zinc-200 relative">
-        {info.avatar_url ? (
+        {info.avatarUrl ? (
           <Image
-            src={info.avatar_url}
+            src={info.avatarUrl}
             alt={info.name}
             fill
             className="w-full h-full object-cover"

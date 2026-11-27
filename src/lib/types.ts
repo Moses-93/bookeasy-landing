@@ -24,6 +24,7 @@ export type FieldType = Schemas["FieldType"];
 export type IFormField = Schemas["FormFieldSchema"];
 export type IMasterCustomization = Schemas["MasterCustomizationSchema"];
 export type ICreateBookingRequest = Schemas["CreateAnonymousBookingSchema"];
+export type IBirthday = Schemas["BirthdaySchema"];
 
 /** Presentation model of a booked service line (summary card). */
 export type IBookedService = Pick<Schemas["BookedServiceSchema"], "title" | "price">;
@@ -79,7 +80,25 @@ export const DEFAULT_FORM_FIELDS: IFormField[] = [
   { type: "instagram", isVisible: true, isRequired: false, position: 1 },
   { type: "telegram", isVisible: true, isRequired: false, position: 2 },
   { type: "comment", isVisible: false, isRequired: false, position: 3 },
+  { type: "birthday", isVisible: false, isRequired: false, position: 4 },
 ];
+
+export const birthdaySchema = z
+  .string({ error: "Вкажіть дату народження" })
+  .trim()
+  .refine(
+    (val) => {
+      const parts = val.split(".");
+      if (parts.length !== 2 && parts.length !== 3) return false;
+      const [day, month, year = "2000"] = parts;
+      return z.iso.date().safeParse(`${year}-${month}-${day}`).success;
+    },
+    { message: "Некоректна дата народження" },
+  )
+  .transform((val): IBirthday => {
+    const [day, month, year] = val.split(".").map(Number);
+    return { day, month, year: year ?? null };
+  });
 
 /**
  * Create a booking validation schema with field constraints applied from master settings.
@@ -93,11 +112,13 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
   const instagramField = fields.find((f) => f.type === "instagram");
   const telegramField = fields.find((f) => f.type === "telegram");
   const commentField = fields.find((f) => f.type === "comment");
+  const birthdayField = fields.find((f) => f.type === "birthday");
 
   const isLastNameRequired = Boolean(lastNameField?.isVisible && lastNameField?.isRequired);
   const isInstagramRequired = Boolean(instagramField?.isVisible && instagramField?.isRequired);
   const isTelegramRequired = Boolean(telegramField?.isVisible && telegramField?.isRequired);
   const isCommentRequired = Boolean(commentField?.isVisible && commentField?.isRequired);
+  const isBirthdayRequired = Boolean(birthdayField?.isVisible && birthdayField?.isRequired);
 
   return z.object({
     masterId: z.number().int().positive(),
@@ -209,6 +230,17 @@ export const createBookingSchema = (formFields?: IFormField[] | null) => {
             const s = v.trim();
             return s.length > 0 ? s : null;
           }),
+    birthday: isBirthdayRequired
+      ? z
+          .string({ error: "Вкажіть дату народження" })
+          .trim()
+          .min(1, "Вкажіть дату народження")
+          .pipe(birthdaySchema)
+      : z
+          .string()
+          .nullish()
+          .transform((v) => (v?.trim() ? v.trim() : null))
+          .pipe(birthdaySchema.nullable()),
   });
 };
 

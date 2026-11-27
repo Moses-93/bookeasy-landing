@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { AsYouType } from "libphonenumber-js";
+import { useMask } from "@react-input/mask";
 import {
   type IFormField,
   DEFAULT_FORM_FIELDS,
@@ -26,6 +27,10 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
   formFields,
 }) => {
   const [phone, setPhone] = useState("");
+  const birthdayInputRef = useMask({
+    mask: "__.__.____",
+    replacement: { _: /\d/ },
+  });
 
   const asYouType = phone ? new AsYouType() : null;
   if (asYouType && phone) {
@@ -200,6 +205,33 @@ export const ClientFormFields: React.FC<IClientFormFieldsProps> = ({
                     className="w-full border-none bg-transparent p-0 text-sm text-slate-900 outline-none placeholder-slate-400 focus:ring-0"
                   />
                 </div>
+              </div>
+            );
+          }
+
+          if (field.type === "birthday") {
+            return (
+              <div
+                key="birthday"
+                className={`flex flex-col px-4 py-2.5 ${borderClass} focus-within:bg-slate-50/50 transition-colors`}
+              >
+                <label
+                  htmlFor="birthday_input"
+                  className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5 cursor-pointer"
+                >
+                  Дата народження {field.isRequired ? <span className="text-red-500">*</span> : null}
+                </label>
+                <input
+                  ref={birthdayInputRef}
+                  id="birthday_input"
+                  type="text"
+                  name="birthday"
+                  inputMode="numeric"
+                  placeholder="15.05 або 15.05.1995"
+                  autoComplete="off"
+                  required={field.isRequired}
+                  className="w-full border-none bg-transparent p-0 text-sm text-slate-900 outline-none placeholder-slate-400 focus:ring-0"
+                />
               </div>
             );
           }

@@ -93,7 +93,7 @@ export interface paths {
         };
         /**
          * Lists services under the given specialist.
-         * @description Retrieves a paginated collection of catalog services belonging to the specified specialist, supporting optional filtering by price and duration boundaries.
+         * @description Retrieves a paginated collection of visible catalog services belonging to the specified specialist.
          */
         get: operations["list_public_services_api_v1_services_get"];
         put?: never;
@@ -148,6 +148,27 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** BirthdaySchema */
+        BirthdaySchema: {
+            /**
+             * Day
+             * @description Day of month (1-31)
+             * @example 15
+             */
+            day: number;
+            /**
+             * Month
+             * @description Month of year (1-12)
+             * @example 5
+             */
+            month: number;
+            /**
+             * Year
+             * @description Optional birth year
+             * @example 1995
+             */
+            year?: number | null;
+        };
         /** BookableTimeSlotSchema */
         BookableTimeSlotSchema: {
             /**
@@ -358,6 +379,7 @@ export interface components {
              * @example john_doe
              */
             telegramUsername?: string | null;
+            birthday?: components["schemas"]["BirthdaySchema"] | null;
         };
         /**
          * Currency
@@ -370,7 +392,7 @@ export interface components {
          * @description Booking form field types available for customization.
          * @enum {string}
          */
-        FieldType: "last_name" | "instagram" | "telegram" | "comment";
+        FieldType: "last_name" | "instagram" | "telegram" | "comment" | "birthday";
         /** FormFieldSchema */
         FormFieldSchema: {
             /**
@@ -402,6 +424,12 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * Language
+         * @description Supported interface and notification languages (ISO 639-1).
+         * @enum {string}
+         */
+        Language: "uk" | "en";
         /** MasterCustomizationSchema */
         MasterCustomizationSchema: {
             /**
@@ -410,6 +438,11 @@ export interface components {
              * @example 1
              */
             customizationId?: number | null;
+            /**
+             * @description ISO 639-1 language code
+             * @example uk
+             */
+            language: components["schemas"]["Language"];
             /**
              * Formfields
              * @description Ordered sequence of input field parameters configured for customer intake
@@ -546,6 +579,20 @@ export interface components {
             comment?: string | null;
             /** Masteravatarurl */
             masterAvatarUrl?: string | null;
+            /**
+             * Allowbookingcancellation
+             * @description Whether clients are permitted to cancel their own bookings
+             * @default true
+             * @example true
+             */
+            allowBookingCancellation: boolean;
+            /**
+             * Allowbookingrescheduling
+             * @description Whether clients are permitted to reschedule their own bookings
+             * @default true
+             * @example true
+             */
+            allowBookingRescheduling: boolean;
         };
         /** PublicMasterProfileSchema */
         PublicMasterProfileSchema: {
@@ -635,6 +682,20 @@ export interface components {
             /** Color */
             color?: string | null;
             /**
+             * Onlinebooking
+             * @description Whether clients can book this service online
+             * @default true
+             * @example true
+             */
+            onlineBooking: boolean;
+            /**
+             * Visible
+             * @description Whether this service is visible in the public catalog
+             * @default true
+             * @example true
+             */
+            visible: boolean;
+            /**
              * Id
              * @description Catalog entry identifier for a service offered by the specialist
              * @example 1
@@ -646,6 +707,12 @@ export interface components {
              * @example 1
              */
             masterId: number;
+            /**
+             * Position
+             * @description Zero-indexed display position of the service in the catalog
+             * @example 0
+             */
+            position: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -892,6 +959,8 @@ export interface operations {
                 minDuration?: string | null;
                 /** @description Inclusive upper bound for filtering by procedure duration */
                 maxDuration?: string | null;
+                /** @description Optional filter by online booking availability */
+                onlineBooking?: boolean | null;
                 /** @description Maximum number of items to return in a single page */
                 limit?: number;
                 /** @description Number of initial items to skip before returning results */
